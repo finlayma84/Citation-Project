@@ -71,6 +71,7 @@ def season_for_date(d):
         return 'Epiphany'
     if d < easter_sunday:
         return 'Lent'
-    if d < pentecost:
+    # Eastertide runs through Pentecost Sunday; the Season after Pentecost begins on Trinity Sunday.
+    if d <= pentecost:
         return 'Easter'
     return 'Pentecost'

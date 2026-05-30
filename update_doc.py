@@ -12,13 +12,21 @@ from docx.shared import Pt
 from docx.shared import RGBColor
 
 from generate_doc import (
-    DB_PATH, MONTHS, MONTHS_REV, SLOTS, SLOT_LABEL,
+    DB_PATH, MONTHS, MONTHS_REV, SLOTS, SLOT_LABEL, SLOT_ALIASES,
     DEFAULT_FONT, BODY_SIZE, get_pieces_for_date, slot_line_text,
+    clear_paragraph_runs, write_slot_paragraph,
 )
 
-# Detect a slot line: either "PRELUDE: ..." or "[PRELUDE: To be Chosen]"
+# Detect Michael-owned slot lines/placeholders.
+# Supports new placeholders like {PRELUDE}, new labels like MUSIC MINISTRY/OFFERTORY,
+# and older labels like MIN MUSIC/OFFERING so existing docs keep syncing.
+ALL_SLOT_LABELS = sorted(
+    {label for labels in SLOT_ALIASES.values() for label in labels},
+    key=len,
+    reverse=True,
+)
 SLOT_LINE_RE = re.compile(
-    r'^(?:\[)?(' + '|'.join(re.escape(SLOT_LABEL[s]) for s in SLOTS) + r')[:\]]',
+    r'^(?:\{)?(' + '|'.join(re.escape(label) for label in ALL_SLOT_LABELS) + r')(?:\})?(?:\s*:|$)',
     re.I
 )
 
@@ -27,44 +35,22 @@ DATE_HEADER_RE = re.compile(r'^([A-Z]{3})\s+(\d{1,2})\b')
 
 
 def slot_from_label(label_text):
-    """Map a label string back to our canonical slot name."""
-    up = label_text.upper().strip()
-    for slot, label in SLOT_LABEL.items():
-        if up == label:
+    """Map a display label or placeholder text back to our canonical DB slot name."""
+    up = label_text.upper().strip().strip('{}')
+    for slot, labels in SLOT_ALIASES.items():
+        if up in labels:
             return slot
     return None
 
 
-def rewrite_paragraph(paragraph, new_text):
-    """Replace a paragraph's text while preserving the first run's formatting."""
-    # Capture the format of the first run (font, size, color) so we can reapply it
-    first_run_format = None
-    if paragraph.runs:
-        r = paragraph.runs[0]
-        first_run_format = {
-            'font': r.font.name,
-            'size': r.font.size,
-            'bold': r.bold,
-            'italic': r.italic,
-            'color': r.font.color.rgb if r.font.color and r.font.color.rgb else None,
-        }
-    # Clear all existing runs
-    for run in list(paragraph.runs):
-        run._element.getparent().remove(run._element)
-    # Add a single new run with the same formatting
-    new_run = paragraph.add_run(new_text)
-    if first_run_format:
-        if first_run_format['font']:
-            new_run.font.name = first_run_format['font']
-        if first_run_format['size']:
-            new_run.font.size = first_run_format['size']
-        new_run.bold = first_run_format['bold']
-        new_run.italic = first_run_format['italic']
-        if first_run_format['color']:
-            new_run.font.color.rgb = first_run_format['color']
-    else:
-        new_run.font.name = DEFAULT_FONT
-        new_run.font.size = Pt(BODY_SIZE)
+def rewrite_slot_paragraph(paragraph, slot, piece):
+    """Replace a music-slot paragraph using the same formatting as newly generated docs.
+
+    This avoids a subtle bug where a filled piece inherited the gray/italic
+    placeholder formatting after syncing.
+    """
+    clear_paragraph_runs(paragraph)
+    write_slot_paragraph(paragraph, slot, piece)
 
 
 def update_doc_for_season(season, year):
@@ -122,7 +108,7 @@ def update_doc_for_season(season, year):
         piece = data['pieces'][slot]
         new_text = slot_line_text(slot, piece)
         if new_text != text:
-            rewrite_paragraph(paragraph, new_text)
+            rewrite_slot_paragraph(paragraph, slot, piece)
 
     doc.save(str(path))
 
