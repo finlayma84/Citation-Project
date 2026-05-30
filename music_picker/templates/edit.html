@@ -1,0 +1,202 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title or 'Music Picker' }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-page: #0d1a3a;
+      --bg-page-edge: #081f62;
+      --bg-card: #fafaf7;
+      --bg-card-hover: #f3f4ed;
+      --bg-card-subtle: #ebede2;
+      --border-card: #d8dbe8;
+      --text-on-dark: #fefefe;
+      --text-on-dark-muted: #aab2cc;
+      --text-primary: #1a1f2e;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --accent-action: #b45309;
+      --accent-action-hover: #92400e;
+      --accent-action-soft-bg: #fef3c7;
+      --season-advent:   #7c3aed; --season-advent-bg:   #f5f3ff;
+      --season-epiphany: #0891b2; --season-epiphany-bg: #ecfeff;
+      --season-lent:     #6b21a8; --season-lent-bg:     #faf5ff;
+      --season-easter:   #b45309; --season-easter-bg:   #fef3c7;
+      --season-pentecost:#15803d; --season-pentecost-bg:#f0fdf4;
+      --library-fg: #92400e;
+      --library-bg: #fef3c7;
+      --library-border: #fde68a;
+      --notice-success-bg: #d1fae5;
+      --notice-success-fg: #065f46;
+      --notice-success-border: #6ee7b7;
+      --notice-warn-bg: #fef3c7;
+      --notice-warn-fg: #78350f;
+      --notice-warn-border: #fcd34d;
+      --danger-fg: #b91c1c;
+      --danger-bg: #fee2e2;
+      --danger-border: #fca5a5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 0.5rem;
+    }
+    .text-on-dark { color: var(--text-on-dark); }
+    .text-on-dark-muted { color: var(--text-on-dark-muted); }
+    .btn-primary {
+      background: var(--accent-action);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-action-hover); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-card);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--bg-card-hover); }
+    .btn-dark {
+      background: var(--text-primary);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+    }
+    .btn-dark:hover { background: #000; }
+    .btn-danger {
+      background: var(--danger-fg);
+      color: var(--text-on-dark);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      font-size: 0.875rem;
+    }
+    .btn-danger:hover { background: #991b1b; }
+    .badge-library {
+      background: var(--library-bg);
+      color: var(--library-fg);
+      border: 1px solid var(--library-border);
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      white-space: nowrap;
+    }
+    .notice-success {
+      background: var(--notice-success-bg);
+      color: var(--notice-success-fg);
+      border: 1px solid var(--notice-success-border);
+    }
+    .notice-warn {
+      background: var(--notice-warn-bg);
+      color: var(--notice-warn-fg);
+      border: 1px solid var(--notice-warn-border);
+    }
+    .danger-zone {
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      border: 1px solid var(--danger-border);
+    }
+    table thead th {
+      background: var(--bg-card-subtle);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody tr td { border-top: 1px solid var(--border-card); }
+    a.link { color: var(--text-primary); }
+    a.link:hover { color: var(--accent-action); }
+    input[type="text"], input[type="number"], select, textarea {
+      background: #fff;
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent-action);
+      outline-offset: -1px;
+    }
+    .label-tiny {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+
+<body>
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <a href="{{ back_url }}" class="text-on-dark-muted hover:text-on-dark text-sm mb-6 inline-block">← back</a>
+  <h1 class="text-2xl font-semibold tracking-tight mb-1 text-on-dark">Edit entry</h1>
+  <p class="text-on-dark-muted mb-6 text-sm">{{ row.calendar_year or '????' }} {{ row.date }} · {{ row.slot }}</p>
+  <form method="post" class="space-y-4 card p-6">
+    <input type="hidden" name="from" value="{{ back_url }}">
+    <div>
+      <label class="block text-sm font-medium text-stone-700 mb-1">Title</label>
+      <input type="text" name="title" value="{{ row.title or '' }}" class="w-full">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Composer</label>
+        <input type="text" name="composer" value="{{ row.composer or '' }}" class="w-full">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Dates</label>
+        <input type="text" name="composer_dates" value="{{ row.composer_dates or '' }}" placeholder="e.g. 1685-1750" class="w-full">
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Slot</label>
+        <select name="slot" class="w-full">
+          {% for s in slots %}<option value="{{ s }}" {% if s == row.slot %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          {% if row.slot == 'Hymn' %}<option value="Hymn" selected>Hymn</option>{% endif %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Performer</label>
+        <select name="performer" class="w-full">
+          {% for p in performers %}<option value="{{ p }}" {% if p == row.performer %}selected{% endif %}>{{ p }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-stone-700 mb-1">Occasion</label>
+      <input type="text" name="occasion" value="{{ row.occasion or '' }}" class="w-full">
+    </div>
+    <div class="pt-2 border-t border-stone-200 flex items-center gap-3">
+      <button type="submit" class="btn-primary">Save changes</button>
+      <a href="{{ back_url }}" class="text-stone-500 hover:text-stone-800 text-sm">Cancel</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>

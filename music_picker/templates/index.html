@@ -1,0 +1,315 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title or 'Music Picker' }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-page: #0d1a3a;
+      --bg-page-edge: #081f62;
+      --bg-card: #fafaf7;
+      --bg-card-hover: #f3f4ed;
+      --bg-card-subtle: #ebede2;
+      --border-card: #d8dbe8;
+      --text-on-dark: #fefefe;
+      --text-on-dark-muted: #aab2cc;
+      --text-primary: #1a1f2e;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --accent-action: #b45309;
+      --accent-action-hover: #92400e;
+      --accent-action-soft-bg: #fef3c7;
+      --season-advent:   #7c3aed; --season-advent-bg:   #f5f3ff;
+      --season-epiphany: #0891b2; --season-epiphany-bg: #ecfeff;
+      --season-lent:     #6b21a8; --season-lent-bg:     #faf5ff;
+      --season-easter:   #b45309; --season-easter-bg:   #fef3c7;
+      --season-pentecost:#15803d; --season-pentecost-bg:#f0fdf4;
+      --library-fg: #92400e;
+      --library-bg: #fef3c7;
+      --library-border: #fde68a;
+      --notice-success-bg: #d1fae5;
+      --notice-success-fg: #065f46;
+      --notice-success-border: #6ee7b7;
+      --notice-warn-bg: #fef3c7;
+      --notice-warn-fg: #78350f;
+      --notice-warn-border: #fcd34d;
+      --danger-fg: #b91c1c;
+      --danger-bg: #fee2e2;
+      --danger-border: #fca5a5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 0.5rem;
+    }
+    .text-on-dark { color: var(--text-on-dark); }
+    .text-on-dark-muted { color: var(--text-on-dark-muted); }
+    .btn-primary {
+      background: var(--accent-action);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-action-hover); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-card);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--bg-card-hover); }
+    .btn-dark {
+      background: var(--text-primary);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+    }
+    .btn-dark:hover { background: #000; }
+    .btn-danger {
+      background: var(--danger-fg);
+      color: var(--text-on-dark);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      font-size: 0.875rem;
+    }
+    .btn-danger:hover { background: #991b1b; }
+    .badge-library {
+      background: var(--library-bg);
+      color: var(--library-fg);
+      border: 1px solid var(--library-border);
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      white-space: nowrap;
+    }
+    .notice-success {
+      background: var(--notice-success-bg);
+      color: var(--notice-success-fg);
+      border: 1px solid var(--notice-success-border);
+    }
+    .notice-warn {
+      background: var(--notice-warn-bg);
+      color: var(--notice-warn-fg);
+      border: 1px solid var(--notice-warn-border);
+    }
+    .danger-zone {
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      border: 1px solid var(--danger-border);
+    }
+    table thead th {
+      background: var(--bg-card-subtle);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody tr td { border-top: 1px solid var(--border-card); }
+    a.link { color: var(--text-primary); }
+    a.link:hover { color: var(--accent-action); }
+    input[type="text"], input[type="number"], select, textarea {
+      background: #fff;
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent-action);
+      outline-offset: -1px;
+    }
+    .label-tiny {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+
+<body>
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <header class="mb-8">
+    <h1 class="text-3xl font-semibold tracking-tight text-on-dark">Repertoire</h1>
+    <p class="text-on-dark-muted mt-1 text-sm">Sunday morning picker</p>
+  </header>
+
+  {% if request.args.get('generated') == '1' %}
+  <div class="mb-4 p-3 notice-success rounded-lg text-sm">Generated: {{ request.args.get('msg') }}</div>
+  {% elif request.args.get('generated') == '0' %}
+  <div class="mb-4 p-3 notice-warn rounded-lg text-sm">{{ request.args.get('msg') }}</div>
+  {% endif %}
+  {% if request.args.get('saved') == '1' %}
+  <div class="mb-4 p-3 notice-success rounded-lg text-sm">Saved.{% if request.args.get('synced') == '1' %} Doc updated.{% endif %}</div>
+  {% endif %}
+  {% if request.args.get('deleted') == '1' %}
+  <div class="mb-4 p-3 notice-success rounded-lg text-sm">Entry deleted.</div>
+  {% endif %}
+{% if request.args.get('library_added') == '1' %}
+<div class="mb-4 p-3 notice-success rounded-lg text-sm">Added to library: {{ request.args.get('added_title') }}</div>
+{% endif %}
+
+  <form method="get" class="card flex flex-wrap items-end gap-3 mb-6 p-4">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label-tiny block mb-1">Search</label>
+      <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Title, composer, year, source…" class="w-full">
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Season</label>
+      <select name="season">
+        <option value="">All seasons</option>
+        {% for s in seasons %}<option value="{{ s }}" {% if s == season %}selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Slot</label>
+      <select name="slot">
+        <option value="">All slots</option>
+        {% for s in slots %}<option value="{{ s }}" {% if s == slot %}selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-dark">Filter</button>
+    {% if search_q or season or slot %}<a href="/" class="text-stone-500 hover:text-stone-700 text-sm px-2 py-2">Clear</a>{% endif %}
+  </form>
+
+  <form method="post" action="/generate" class="card flex flex-wrap items-end gap-3 mb-8 p-4">
+    <div>
+      <label class="label-tiny block mb-1">Generate template for</label>
+      <select name="season">{% for s in seasons %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Year</label>
+      <input type="number" name="year" value="{{ default_year }}" min="2020" max="2035" class="w-24">
+    </div>
+    <button type="submit" class="btn-dark">Generate template</button>
+  </form>
+<form method="post" action="/library/add" class="card flex flex-wrap items-end gap-3 mb-8 p-4">
+  <div class="flex-1 min-w-[180px]">
+    <label class="label-tiny block mb-1">Add to library — Title</label>
+    <input type="text" name="title" required class="w-full">
+  </div>
+  <div class="flex-1 min-w-[160px]">
+    <label class="label-tiny block mb-1">Composer / arr.</label>
+    <input type="text" name="composer" class="w-full">
+  </div>
+  <div>
+    <label class="label-tiny block mb-1">Dates</label>
+    <input type="text" name="composer_dates" placeholder="optional" class="w-32">
+  </div>
+  <div class="flex-1 min-w-[160px]">
+    <label class="label-tiny block mb-1">Source</label>
+    <input type="text" name="source_file" placeholder="Book or collection" class="w-full">
+  </div>
+  <button type="submit" class="btn-dark">Add</button>
+</form>
+  {% if doc_status %}
+  <section class="mb-8">
+    <h2 class="text-sm font-semibold text-on-dark-muted mb-2 uppercase tracking-wider">Synced documents</h2>
+    <div class="card overflow-hidden">
+      <table class="w-full text-xs">
+        <thead><tr><th class="text-left px-3 py-2">Season</th><th class="text-left px-3 py-2">Generated</th><th class="text-left px-3 py-2">Last synced</th></tr></thead>
+        <tbody>
+          {% for key, info in doc_status.items() %}
+          <tr><td class="px-3 py-2">{{ key }}</td><td class="px-3 py-2 text-stone-500">{{ info.generated_at }}</td><td class="px-3 py-2 text-stone-500">{{ info.last_synced_at }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="mb-8">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-semibold text-on-dark">{{ month_label }}</h2>
+      <div class="flex items-center gap-1">
+        <a href="/?month={{ prev_month_iso }}" class="btn-secondary text-sm" title="Previous month">←</a>
+        <a href="/" class="btn-secondary text-sm">Today</a>
+        <a href="/?month={{ next_month_iso }}" class="btn-secondary text-sm" title="Next month">→</a>
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <table class="w-full text-sm">
+        <thead><tr><th class="text-left px-4 py-2">Sunday</th><th class="text-left px-4 py-2">Prelude</th><th class="text-left px-4 py-2">Min Music</th><th class="text-left px-4 py-2">Offering</th><th class="text-left px-4 py-2">Postlude</th></tr></thead>
+        <tbody>
+          {% for s in sundays %}
+          {% set p = season_palette(s.season) %}
+          <tr class="cursor-pointer{% if s.is_past %} opacity-60{% endif %}"
+              style="border-left: 4px solid {{ p.accent }};"
+              onclick="window.location='/plan/{{ s.iso }}'">
+            <td class="px-4 py-3 whitespace-nowrap font-medium">
+              <a href="/plan/{{ s.iso }}" class="link {% if s.is_today %}font-semibold{% endif %}" {% if s.is_today %}style="color: {{ p.accent }};"{% endif %}>
+                {{ s.display }}{% if s.is_today %} · today{% endif %}
+              </a>
+              <div class="text-xs mt-0.5" style="color: {{ p.accent }};">{{ p.label }}{% if s.occasion %} · <span class="text-stone-500">{{ s.occasion }}</span>{% endif %}</div>
+            </td>
+            {% for slot in ['Prelude', 'Min Music', 'Offering', 'Postlude'] %}
+              <td class="px-4 py-3 text-stone-700">
+                {% if s.pieces[slot] %}{{ s.pieces[slot] }}{% else %}<span class="text-stone-300">—</span>{% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+          {% if not sundays %}
+          <tr><td colspan="5" class="px-4 py-6 text-center text-stone-400 text-sm">No Sundays in this month.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <p class="text-xs text-on-dark-muted mt-2">Click a Sunday to plan it.</p>
+  </section>
+
+  <section>
+    <h2 class="text-xl font-semibold text-on-dark mb-3">
+      History
+      <span class="text-on-dark-muted text-sm font-normal ml-2">{{ count }} unique pieces{% if search_q or season or slot %} matching filters{% endif %} · longest since last played first</span>
+    </h2>
+    <div class="card overflow-hidden">
+      <table class="w-full text-sm">
+        <thead><tr><th class="text-left px-4 py-2">Title</th><th class="text-left px-4 py-2">Composer</th><th class="text-left px-4 py-2">Last played</th><th class="text-right px-4 py-2">Times</th></tr></thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td class="px-4 py-2">
+              <a href="/piece/{{ r.title | urlencode }}" class="font-medium link">{{ r.title }}</a>
+              {% if r.library %}<span class="ml-2 badge-library">library</span>{% endif %}
+            </td>
+            <td class="px-4 py-2 text-stone-600">{{ r.composer }}</td>
+            <td class="px-4 py-2 text-stone-500 whitespace-nowrap">
+              {% if r.library %}<span class="italic text-stone-400">never played</span>{% else %}{{ r.last_played_str }}{% endif %}
+            </td>
+            <td class="px-4 py-2 text-right text-stone-500">{{ r.times }}</td>
+          </tr>
+          {% endfor %}
+          {% if not rows %}<tr><td colspan="4" class="px-4 py-6 text-center text-stone-400 text-sm">No pieces match those filters.</td></tr>{% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</body>
+</html>

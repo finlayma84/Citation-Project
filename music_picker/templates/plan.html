@@ -1,0 +1,319 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title or 'Music Picker' }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-page: #0d1a3a;
+      --bg-page-edge: #081f62;
+      --bg-card: #fafaf7;
+      --bg-card-hover: #f3f4ed;
+      --bg-card-subtle: #ebede2;
+      --border-card: #d8dbe8;
+      --text-on-dark: #fefefe;
+      --text-on-dark-muted: #aab2cc;
+      --text-primary: #1a1f2e;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --text-faint: #9ca3af;
+      --accent-action: #b45309;
+      --accent-action-hover: #92400e;
+      --accent-action-soft-bg: #fef3c7;
+      --season-advent:   #7c3aed; --season-advent-bg:   #f5f3ff;
+      --season-epiphany: #0891b2; --season-epiphany-bg: #ecfeff;
+      --season-lent:     #6b21a8; --season-lent-bg:     #faf5ff;
+      --season-easter:   #b45309; --season-easter-bg:   #fef3c7;
+      --season-pentecost:#15803d; --season-pentecost-bg:#f0fdf4;
+      --library-fg: #92400e;
+      --library-bg: #fef3c7;
+      --library-border: #fde68a;
+      --notice-success-bg: #d1fae5;
+      --notice-success-fg: #065f46;
+      --notice-success-border: #6ee7b7;
+      --notice-warn-bg: #fef3c7;
+      --notice-warn-fg: #78350f;
+      --notice-warn-border: #fcd34d;
+      --danger-fg: #b91c1c;
+      --danger-bg: #fee2e2;
+      --danger-border: #fca5a5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 0.5rem;
+    }
+    .text-on-dark { color: var(--text-on-dark); }
+    .text-on-dark-muted { color: var(--text-on-dark-muted); }
+    .btn-primary {
+      background: var(--accent-action);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-action-hover); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-card);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: var(--bg-card-hover); }
+    .btn-dark {
+      background: var(--text-primary);
+      color: var(--text-on-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+    }
+    .btn-dark:hover { background: #000; }
+    .btn-danger {
+      background: var(--danger-fg);
+      color: var(--text-on-dark);
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      font-size: 0.875rem;
+    }
+    .btn-danger:hover { background: #991b1b; }
+    .badge-library {
+      background: var(--library-bg);
+      color: var(--library-fg);
+      border: 1px solid var(--library-border);
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      white-space: nowrap;
+    }
+    .notice-success {
+      background: var(--notice-success-bg);
+      color: var(--notice-success-fg);
+      border: 1px solid var(--notice-success-border);
+    }
+    .notice-warn {
+      background: var(--notice-warn-bg);
+      color: var(--notice-warn-fg);
+      border: 1px solid var(--notice-warn-border);
+    }
+    .danger-zone {
+      background: var(--danger-bg);
+      color: var(--danger-fg);
+      border: 1px solid var(--danger-border);
+    }
+    table thead th {
+      background: var(--bg-card-subtle);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: var(--bg-card-hover); }
+    tbody tr td { border-top: 1px solid var(--border-card); }
+    a.link { color: var(--text-primary); }
+    a.link:hover { color: var(--accent-action); }
+    input[type="text"], input[type="number"], select, textarea {
+      background: #fff;
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      border-radius: 0.375rem;
+      padding: 0.5rem 0.75rem;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent-action);
+      outline-offset: -1px;
+    }
+    .label-tiny {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+
+<body>
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <a href="/" class="text-on-dark-muted hover:text-on-dark text-sm mb-6 inline-block">← back to list</a>
+  {% set p = season_palette(form_season) %}
+  <header class="mb-6 pl-4" style="border-left: 4px solid {{ p.accent }};">
+    <h1 class="text-2xl font-semibold tracking-tight text-on-dark">{{ display_date }}</h1>
+    <p class="mt-1">
+      <span class="font-medium" style="color: {{ p.accent }};">{{ p.label }}</span>
+      {% if occasion %}<span class="ml-2 text-on-dark-muted">· {{ occasion }}</span>{% endif %}
+    </p>
+  </header>
+
+  {% if hymns %}
+  <section class="card mb-6 p-4" style="background: var(--notice-warn-bg); border-color: var(--notice-warn-border);">
+    <h2 class="label-tiny mb-2" style="color: var(--notice-warn-fg);">Hymns (chosen by pastor)</h2>
+    <ul class="text-sm space-y-1" style="color: var(--notice-warn-fg);">
+      {% for h in hymns %}<li>{{ h.title }}{% if h.hymn_no %} · #{{ h.hymn_no }}{% endif %}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <form method="post" class="card lg:col-span-3 space-y-6 p-6">
+      <input type="hidden" name="date" value="{{ iso }}">
+      <input type="hidden" name="season" value="{{ form_season }}">
+
+      <div>
+        <label class="block text-sm font-medium text-stone-700 mb-1">Occasion <span class="text-stone-400">(optional)</span></label>
+        <input type="text" name="occasion" value="{{ occasion or '' }}" class="w-full">
+      </div>
+
+      <div class="border-t border-stone-200 pt-6 space-y-5">
+        {% for slot in slot_names %}
+        <div>
+          <label class="block text-sm font-semibold text-stone-800 mb-2">{{ slot }}</label>
+          <div class="space-y-2">
+            <input type="text" id="title_{{ slot }}" name="title_{{ slot }}" value="{{ slot_data[slot].title or '' }}" placeholder="Title" class="w-full">
+            <div class="grid grid-cols-12 gap-2">
+              <input type="text" id="composer_{{ slot }}" name="composer_{{ slot }}" value="{{ slot_data[slot].composer or '' }}" placeholder="Composer" class="col-span-5">
+              <input type="text" id="composer_dates_{{ slot }}" name="composer_dates_{{ slot }}" value="{{ slot_data[slot].composer_dates or '' }}" placeholder="Dates, e.g. 1685-1750" class="col-span-4">
+              <select name="performer_{{ slot }}" class="col-span-3">
+                {% for pf in performers %}<option value="{{ pf }}" {% if pf == slot_data[slot].performer %}selected{% endif %}>{{ pf }}</option>{% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="pt-2 border-t border-stone-200 flex items-center gap-3">
+        <button type="submit" class="btn-primary">Save Sunday</button>
+        <p class="text-xs text-stone-400">Leave a slot blank to clear it.</p>
+      </div>
+    </form>
+
+    <aside class="lg:col-span-2">
+      <div class="lg:sticky lg:top-4 card p-4">
+        <form id="sidebar-form" method="get" class="mb-3 space-y-2">
+          <div>
+            <label class="label-tiny block mb-1">Search past pieces</label>
+            <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Title, composer, year…" class="text-sm w-full">
+          </div>
+          <div>
+            <label class="label-tiny block mb-1">Pieces from</label>
+            <select name="filter_season" class="text-sm w-full">
+              <option value="__all__" {% if filter_season == '' %}selected{% endif %}>All seasons</option>
+              {% for s in seasons %}<option value="{{ s }}" {% if s == filter_season %}selected{% endif %}>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button type="submit" class="btn-dark flex-1 text-xs py-1">Search</button>
+            {% if search_q %}<button type="button" id="sidebar-clear" class="text-xs text-stone-500 px-2 py-1">Clear</button>{% endif %}
+          </div>
+        </form>
+        <p class="text-xs text-stone-500 mb-3">{{ past_total }} unique{% if search_q %} matching "{{ search_q }}"{% endif %} · longest since last played first</p>
+        <div id="past-list" class="space-y-1 max-h-[70vh] overflow-y-auto pr-1">
+          {% for p in past_pieces %}
+          <div class="text-sm border border-stone-200 rounded p-2 group" style="background: #fff;" data-title="{{ p.title }}" data-composer="{{ p.composer }}" data-dates="{{ p.composer_dates }}">
+            <div class="font-medium text-stone-900">
+              {{ p.title }}
+              {% if p.library %}<span class="ml-1 badge-library">lib</span>{% endif %}
+            </div>
+            <div class="text-xs text-stone-500 mt-0.5">
+              {{ p.composer or '—' }}{% if p.composer_dates %} ({{ p.composer_dates }}){% endif %}
+              · {% if p.library %}<span class="italic">never played</span>{% else %}last {{ p.last_played_str or 'unknown' }} · {{ p.times }}×{% endif %}
+            </div>
+            <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
+              {% for slot in slot_names %}
+                <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+          {% if not past_pieces %}<p class="text-sm text-stone-400 text-center py-6">No matches.</p>{% endif %}
+          {% if past_truncated %}
+          <div id="show-all-wrap" class="pt-2"><button type="button" id="show-all-btn" class="text-sm text-amber-700 hover:text-amber-900 underline">Show all {{ past_total }} ↓</button></div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+function wireUp() {
+  document.querySelectorAll('.fill-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const card = btn.closest('[data-title]');
+      const slot = btn.dataset.target;
+      document.getElementById('title_' + slot).value = card.dataset.title;
+      document.getElementById('composer_' + slot).value = card.dataset.composer;
+      document.getElementById('composer_dates_' + slot).value = card.dataset.dates;
+      const titleEl = document.getElementById('title_' + slot);
+      titleEl.style.outline = '2px solid var(--accent-action)';
+      setTimeout(() => titleEl.style.outline = '', 600);
+    });
+  });
+}
+async function refreshSidebar(params) {
+  const url = new URL(window.location.href);
+  url.search = '';
+  for (const [k, v] of Object.entries(params)) { if (v) url.searchParams.set(k, v); }
+  history.replaceState(null, '', url.toString());
+  const resp = await fetch(url.toString());
+  const html = await resp.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const newList = doc.getElementById('past-list');
+  if (newList) { document.getElementById('past-list').replaceWith(newList); wireUp(); }
+  const newForm = doc.getElementById('sidebar-form');
+  if (newForm) {
+    const activeId = document.activeElement && document.activeElement.id;
+    const selectionStart = document.activeElement && document.activeElement.selectionStart;
+    document.getElementById('sidebar-form').replaceWith(newForm);
+    wireSidebarForm();
+    if (activeId) {
+      const el = document.getElementById(activeId);
+      if (el) { el.focus(); if (selectionStart != null && el.setSelectionRange) { try { el.setSelectionRange(selectionStart, selectionStart); } catch (e) {} } }
+    }
+  }
+}
+function wireSidebarForm() {
+  const form = document.getElementById('sidebar-form');
+  if (!form) return;
+  form.addEventListener('submit', e => { e.preventDefault(); refreshSidebar({ q: form.querySelector('[name=q]').value, filter_season: form.querySelector('[name=filter_season]').value }); });
+  const seasonSel = form.querySelector('[name=filter_season]');
+  if (seasonSel) seasonSel.addEventListener('change', () => refreshSidebar({ q: form.querySelector('[name=q]').value, filter_season: seasonSel.value }));
+  const clearBtn = document.getElementById('sidebar-clear');
+  if (clearBtn) clearBtn.addEventListener('click', () => { form.querySelector('[name=q]').value = ''; refreshSidebar({ q: '', filter_season: seasonSel.value }); });
+}
+wireUp(); wireSidebarForm();
+const showAll = document.getElementById('show-all-btn');
+if (showAll) {
+  showAll.addEventListener('click', async () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('all_past', '1');
+    const resp = await fetch(url.toString());
+    const html = await resp.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const newList = doc.getElementById('past-list');
+    if (newList) { document.getElementById('past-list').replaceWith(newList); wireUp(); }
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Excluded from this cleaned/refactored copy:
+- .venv-1/ virtual environment
+- BitTorrentWeb.dmg
+- files.zip
+- music_picker_refactored.zip
+- .vscode/settings.json
+- __pycache__ and OS cache files
+
+These were excluded to keep the project portable and avoid confusing generated/binary clutter with app source code.

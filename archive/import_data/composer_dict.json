@@ -1,0 +1,1462 @@
+[
+  {
+    "key": "hayes",
+    "name": "Mark Hayes",
+    "birth": 1959,
+    "death": null,
+    "name_variants": [
+      "Mark Hayes",
+      "arr. Mark Hayes"
+    ],
+    "date_variants": [
+      "b. 1959"
+    ],
+    "occurrences": 48,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bach",
+    "name": "J.S Bach",
+    "birth": 1685,
+    "death": 1750,
+    "name_variants": [
+      "J.S Bach"
+    ],
+    "date_variants": [
+      "1685-1750",
+      "1685–1750"
+    ],
+    "occurrences": 38,
+    "date_ambiguous": false
+  },
+  {
+    "key": "chopin",
+    "name": "Frederic Chopin",
+    "birth": 1810,
+    "death": 1849,
+    "name_variants": [
+      "Frederic Chopin"
+    ],
+    "date_variants": [
+      "1810-1849",
+      "1810–1849"
+    ],
+    "occurrences": 23,
+    "date_ambiguous": false
+  },
+  {
+    "key": "rutter",
+    "name": "John Rutter",
+    "birth": 1945,
+    "death": null,
+    "name_variants": [
+      "John Rutter"
+    ],
+    "date_variants": [
+      "b. 1945"
+    ],
+    "occurrences": 22,
+    "date_ambiguous": false
+  },
+  {
+    "key": "schubert",
+    "name": "Franz Schubert",
+    "birth": 1797,
+    "death": 1828,
+    "name_variants": [
+      "Franz Schubert"
+    ],
+    "date_variants": [
+      "1797-1828",
+      "1797–1828"
+    ],
+    "occurrences": 22,
+    "date_ambiguous": false
+  },
+  {
+    "key": "in",
+    "name": "When the Saints Go Marching In",
+    "birth": 1770,
+    "death": 1828,
+    "name_variants": [
+      "When the Saints Go Marching In"
+    ],
+    "date_variants": [
+      "1034",
+      "1666–1734",
+      "1685–1750",
+      "1770–1828",
+      "1797–1828",
+      "1809–1847",
+      "1810–1849",
+      "1811–1847",
+      "b. 1952",
+      "b. 1956"
+    ],
+    "occurrences": 17,
+    "date_ambiguous": true
+  },
+  {
+    "key": "beethoven",
+    "name": "Ludwig van Beethoven",
+    "birth": 1770,
+    "death": 1828,
+    "name_variants": [
+      "Ludwig van Beethoven"
+    ],
+    "date_variants": [
+      "1770-1828",
+      "1770–1827",
+      "1770–1828"
+    ],
+    "occurrences": 17,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mozart",
+    "name": "WA Mozart",
+    "birth": 1756,
+    "death": 1791,
+    "name_variants": [
+      "WA Mozart"
+    ],
+    "date_variants": [
+      "1756-1791",
+      "1756–1791"
+    ],
+    "occurrences": 17,
+    "date_ambiguous": false
+  },
+  {
+    "key": "brahms",
+    "name": "Johannes Brahms",
+    "birth": 1833,
+    "death": 1897,
+    "name_variants": [
+      "Johannes Brahms"
+    ],
+    "date_variants": [
+      "1833-1897",
+      "1833–1897"
+    ],
+    "occurrences": 16,
+    "date_ambiguous": false
+  },
+  {
+    "key": "schumann",
+    "name": "Robert Schumann",
+    "birth": 1810,
+    "death": 1856,
+    "name_variants": [
+      "Robert Schumann"
+    ],
+    "date_variants": [
+      "1810-1856",
+      "1810–1856"
+    ],
+    "occurrences": 12,
+    "date_ambiguous": false
+  },
+  {
+    "key": "scarlatti",
+    "name": "Domenico Scarlatti",
+    "birth": 1685,
+    "death": 1757,
+    "name_variants": [
+      "Domenico Scarlatti"
+    ],
+    "date_variants": [
+      "1685-1757",
+      "1685–1757"
+    ],
+    "occurrences": 11,
+    "date_ambiguous": false
+  },
+  {
+    "key": "handel",
+    "name": "G. F. Handel",
+    "birth": 1685,
+    "death": 1759,
+    "name_variants": [
+      "G. F. Handel"
+    ],
+    "date_variants": [
+      "1685-1759",
+      "1685–1759"
+    ],
+    "occurrences": 10,
+    "date_ambiguous": false
+  },
+  {
+    "key": "rachmaninoff",
+    "name": "Sergei Rachmaninoff",
+    "birth": 1873,
+    "death": 1943,
+    "name_variants": [
+      "Sergei Rachmaninoff"
+    ],
+    "date_variants": [
+      "1873-1943",
+      "1873–1943"
+    ],
+    "occurrences": 9,
+    "date_ambiguous": false
+  },
+  {
+    "key": "debussy",
+    "name": "Claude Debussy",
+    "birth": 1862,
+    "death": 1918,
+    "name_variants": [
+      "Claude Debussy"
+    ],
+    "date_variants": [
+      "1862-1918",
+      "1862–1918"
+    ],
+    "occurrences": 9,
+    "date_ambiguous": false
+  },
+  {
+    "key": "haydn",
+    "name": "Franz Joseph Haydn",
+    "birth": 1732,
+    "death": 1809,
+    "name_variants": [
+      "Franz Joseph Haydn"
+    ],
+    "date_variants": [
+      "1732–1809"
+    ],
+    "occurrences": 6,
+    "date_ambiguous": false
+  },
+  {
+    "key": "williams",
+    "name": "Ralph Vaughan Williams",
+    "birth": 1872,
+    "death": 1958,
+    "name_variants": [
+      "Ralph Vaughan Williams"
+    ],
+    "date_variants": [
+      "1872–1958"
+    ],
+    "occurrences": 5,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bock",
+    "name": "Fred Bock",
+    "birth": 1938,
+    "death": 1998,
+    "name_variants": [
+      "Fred Bock",
+      "arr. Fred Bock"
+    ],
+    "date_variants": [
+      "1938-1998",
+      "1938–1998"
+    ],
+    "occurrences": 5,
+    "date_ambiguous": false
+  },
+  {
+    "key": "grieg",
+    "name": "Edvard Grieg",
+    "birth": 1843,
+    "death": 1907,
+    "name_variants": [
+      "Edvard Grieg"
+    ],
+    "date_variants": [
+      "1843–1907"
+    ],
+    "occurrences": 5,
+    "date_ambiguous": false
+  },
+  {
+    "key": "price",
+    "name": "Florence Price",
+    "birth": 1887,
+    "death": 1953,
+    "name_variants": [
+      "Florence Price"
+    ],
+    "date_variants": [
+      "1887–1953"
+    ],
+    "occurrences": 4,
+    "date_ambiguous": false
+  },
+  {
+    "key": "franck",
+    "name": "Cesar Franck",
+    "birth": 1822,
+    "death": 1890,
+    "name_variants": [
+      "Cesar Franck"
+    ],
+    "date_variants": [
+      "1822–1890"
+    ],
+    "occurrences": 4,
+    "date_ambiguous": false
+  },
+  {
+    "key": "faure",
+    "name": "Gabriel Faure",
+    "birth": 1845,
+    "death": 1924,
+    "name_variants": [
+      "Gabriel Faure"
+    ],
+    "date_variants": [
+      "1845–1924"
+    ],
+    "occurrences": 4,
+    "date_ambiguous": false
+  },
+  {
+    "key": "larson",
+    "name": "Lloyd Larson",
+    "birth": 1954,
+    "death": null,
+    "name_variants": [
+      "arr. Lloyd Larson"
+    ],
+    "date_variants": [
+      "b. 1954"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "choplin",
+    "name": "Pepper Choplin",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Pepper Choplin"
+    ],
+    "date_variants": [],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "white",
+    "name": "Marylin White",
+    "birth": 1953,
+    "death": 2023,
+    "name_variants": [
+      "Marylin White",
+      "arr. Marylin White"
+    ],
+    "date_variants": [
+      "1953–2023"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mallotte",
+    "name": "Albert Hay Mallotte",
+    "birth": 1890,
+    "death": 1964,
+    "name_variants": [
+      "Albert Hay Mallotte"
+    ],
+    "date_variants": [
+      "1890-1964",
+      "1890–1964"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "wolaver",
+    "name": "Arr. Bill Wolaver",
+    "birth": 1958,
+    "death": null,
+    "name_variants": [
+      "arr. Arr. Bill Wolaver"
+    ],
+    "date_variants": [
+      "b. 1958"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "liebergen",
+    "name": "Patrick M. Liebergen",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Patrick M. Liebergen (choir)"
+    ],
+    "date_variants": [],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bizet",
+    "name": "George Bizet",
+    "birth": 1838,
+    "death": 1875,
+    "name_variants": [
+      "George Bizet"
+    ],
+    "date_variants": [
+      "1838–1875"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "honor",
+    "name": "All Glory Laud and Honor",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "All Glory Laud and Honor (bells)"
+    ],
+    "date_variants": [],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "copland",
+    "name": "Aaron Copland",
+    "birth": 1900,
+    "death": 1990,
+    "name_variants": [
+      "Aaron Copland"
+    ],
+    "date_variants": [
+      "1900–1990"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "malotte",
+    "name": "Albert Malotte",
+    "birth": 1895,
+    "death": 1964,
+    "name_variants": [
+      "Albert Malotte"
+    ],
+    "date_variants": [
+      "1895–1964"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "ravel",
+    "name": "Maurice Ravel",
+    "birth": 1875,
+    "death": 1937,
+    "name_variants": [
+      "Maurice Ravel"
+    ],
+    "date_variants": [
+      "1875–1937"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "tchaikovsky",
+    "name": "Pyotr Ilyich Tchaikovsky",
+    "birth": 1840,
+    "death": 1893,
+    "name_variants": [
+      "Pyotr Ilyich Tchaikovsky"
+    ],
+    "date_variants": [
+      "1840–1893"
+    ],
+    "occurrences": 3,
+    "date_ambiguous": false
+  },
+  {
+    "key": "page",
+    "name": "Anna Page",
+    "birth": 1943,
+    "death": null,
+    "name_variants": [
+      "Anna Page"
+    ],
+    "date_variants": [
+      "b. 1943"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "hopson",
+    "name": "Hal Hopson",
+    "birth": 1933,
+    "death": 2025,
+    "name_variants": [
+      "Hal Hopson"
+    ],
+    "date_variants": [
+      "1933",
+      "1933–2025"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "holst",
+    "name": "Gustav Holst",
+    "birth": 1874,
+    "death": 1934,
+    "name_variants": [
+      "Gustav Holst"
+    ],
+    "date_variants": [
+      "1874–1934"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "shayne",
+    "name": "Gloria Shayne",
+    "birth": 1923,
+    "death": 2008,
+    "name_variants": [
+      "Gloria Shayne"
+    ],
+    "date_variants": [
+      "1923–2008"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "busoni",
+    "name": "Ferrucio Busoni",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "arr. Ferrucio Busoni"
+    ],
+    "date_variants": [],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "hatch",
+    "name": "Winnagene Hatch",
+    "birth": 1930,
+    "death": 2015,
+    "name_variants": [
+      "Winnagene Hatch"
+    ],
+    "date_variants": [
+      "1930–2015"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mascagni",
+    "name": "Easter Hymn Cavalleria Rusticana Pierre Mascagni",
+    "birth": 1864,
+    "death": 1945,
+    "name_variants": [
+      "Easter Hymn Cavalleria Rusticana Pierre Mascagni"
+    ],
+    "date_variants": [
+      "1864–1945"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "arcadelt/liszt",
+    "name": "Ave Maria Arcadelt/Liszt",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Ave Maria Arcadelt/Liszt"
+    ],
+    "date_variants": [],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "dvorak",
+    "name": "Antonin Dvorak",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Antonin Dvorak"
+    ],
+    "date_variants": [],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bach/gounod",
+    "name": "Ave Maria Bach/Gounod",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Ave Maria Bach/Gounod"
+    ],
+    "date_variants": [],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "wagner",
+    "name": "Douglas E. Wagner",
+    "birth": 1959,
+    "death": null,
+    "name_variants": [
+      "Douglas E. Wagner"
+    ],
+    "date_variants": [
+      "1959",
+      "b. 1952"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bruch",
+    "name": "Max Bruch",
+    "birth": 1838,
+    "death": 1920,
+    "name_variants": [
+      "Max Bruch"
+    ],
+    "date_variants": [
+      "1838–1920"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "redhead",
+    "name": "Richard Redhead",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Richard Redhead"
+    ],
+    "date_variants": [],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "scheidt",
+    "name": "Variation 8 Samuel Scheidt",
+    "birth": 1587,
+    "death": 1654,
+    "name_variants": [
+      "Variation 8 Samuel Scheidt"
+    ],
+    "date_variants": [
+      "1587–1654"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "gounod",
+    "name": "Offertoire pour Grand Orgue  Charles Gounod",
+    "birth": 1818,
+    "death": 1893,
+    "name_variants": [
+      "Offertoire pour Grand Orgue  Charles Gounod"
+    ],
+    "date_variants": [
+      "1818–1893"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "strauss",
+    "name": "Richard Strauss",
+    "birth": 1864,
+    "death": 1949,
+    "name_variants": [
+      "Richard Strauss"
+    ],
+    "date_variants": [
+      "1864–1949"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "wolf",
+    "name": "Hugo Wolf",
+    "birth": 1860,
+    "death": 1903,
+    "name_variants": [
+      "Hugo Wolf"
+    ],
+    "date_variants": [
+      "1860–1903"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "grainger",
+    "name": "Percy Grainger",
+    "birth": 1888,
+    "death": 1961,
+    "name_variants": [
+      "Percy Grainger"
+    ],
+    "date_variants": [
+      "1888–1961"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "newton",
+    "name": "Amazing Grace John Newton",
+    "birth": 1725,
+    "death": 1807,
+    "name_variants": [
+      "Amazing Grace John Newton"
+    ],
+    "date_variants": [
+      "1725–1807"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "karg-elert",
+    "name": "Sigfrid Karg-Elert",
+    "birth": 1877,
+    "death": 1933,
+    "name_variants": [
+      "Sigfrid Karg-Elert"
+    ],
+    "date_variants": [
+      "1877–1933"
+    ],
+    "occurrences": 2,
+    "date_ambiguous": false
+  },
+  {
+    "key": "farrell",
+    "name": "Bernadette Farrell",
+    "birth": 1957,
+    "death": null,
+    "name_variants": [
+      "Bernadette Farrell"
+    ],
+    "date_variants": [
+      "b. 1957"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "born",
+    "name": "He Is Born",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "He Is Born"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mark",
+    "name": "Mark",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "arr. Mark"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "greene",
+    "name": "Mark Lowry and Buddy Greene",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Mark Lowry and Buddy Greene"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "white)",
+    "name": "Marilyn White)",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Marilyn White)"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "chaminade",
+    "name": "Cecile Chaminade",
+    "birth": 1857,
+    "death": 1944,
+    "name_variants": [
+      "Cecile Chaminade"
+    ],
+    "date_variants": [
+      "1857–1944"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "skillings",
+    "name": "Otis Skillings",
+    "birth": 1936,
+    "death": 2004,
+    "name_variants": [
+      "Otis Skillings"
+    ],
+    "date_variants": [
+      "1936–2004"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mellin",
+    "name": "Guy Wood and Robert Mellin",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Guy Wood and Robert Mellin"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "church",
+    "name": "One Church",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "One Church"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "quin",
+    "name": "Kevin Keil; Maryanne Quin",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Kevin Keil; Maryanne Quin"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "vivace",
+    "name": "Telemann Sonata in F Major: Vivace",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Telemann Sonata in F Major: Vivace (recorder)"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "earth",
+    "name": "Let there Be Peace on Earth",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Let there Be Peace on Earth (bells)"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "lowry",
+    "name": "Robert Lowry",
+    "birth": 1961,
+    "death": null,
+    "name_variants": [
+      "Robert Lowry"
+    ],
+    "date_variants": [
+      "b. 1961"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "mendelssohn-henselt",
+    "name": "Fanny Mendelssohn-Henselt",
+    "birth": 1805,
+    "death": 1847,
+    "name_variants": [
+      "Fanny Mendelssohn-Henselt"
+    ],
+    "date_variants": [
+      "1805–1847"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "coleridge-taylor",
+    "name": "Samuel Coleridge-Taylor",
+    "birth": 1875,
+    "death": 1912,
+    "name_variants": [
+      "Samuel Coleridge-Taylor"
+    ],
+    "date_variants": [
+      "1875–1912"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "monteverdi",
+    "name": "Claude Monteverdi",
+    "birth": 1567,
+    "death": 1643,
+    "name_variants": [
+      "Claude Monteverdi"
+    ],
+    "date_variants": [
+      "1567–1643"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "poulenc",
+    "name": "Novelette                 Francis Poulenc",
+    "birth": 1899,
+    "death": 1963,
+    "name_variants": [
+      "Novelette                 Francis Poulenc"
+    ],
+    "date_variants": [
+      "1899–1963"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "saward",
+    "name": "Michael Saward",
+    "birth": 1932,
+    "death": null,
+    "name_variants": [
+      "Michael Saward"
+    ],
+    "date_variants": [
+      "1932"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bonds",
+    "name": "The Bells Margaret Bonds",
+    "birth": 1913,
+    "death": 1972,
+    "name_variants": [
+      "The Bells Margaret Bonds"
+    ],
+    "date_variants": [
+      "1913–1972"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "still",
+    "name": "Summerland William Grant Still",
+    "birth": 1896,
+    "death": 1978,
+    "name_variants": [
+      "Summerland William Grant Still"
+    ],
+    "date_variants": [
+      "1896–1978"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "band",
+    "name": "Dixieland Band",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Dixieland Band"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "messiaen",
+    "name": "Olivier Messiaen",
+    "birth": 1908,
+    "death": 1992,
+    "name_variants": [
+      "Olivier Messiaen"
+    ],
+    "date_variants": [
+      "1908–1992"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "johnson",
+    "name": "Victor Johnson",
+    "birth": 1978,
+    "death": null,
+    "name_variants": [
+      "Victor Johnson"
+    ],
+    "date_variants": [
+      "b. 1978"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "rosania",
+    "name": "Laurence Rosania",
+    "birth": 1957,
+    "death": null,
+    "name_variants": [
+      "Laurence Rosania"
+    ],
+    "date_variants": [
+      "b. 1957"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "maker",
+    "name": "Frederick C. Maker",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Frederick C. Maker"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "hustad",
+    "name": "Don Wyrtzen and Don Hustad",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Don Wyrtzen and Don Hustad"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "wounded",
+    "name": "Now Wounded",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Now Wounded"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "taize",
+    "name": "Jesus Remember Me Taizé",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Jesus Remember Me Taizé"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "rachmaninov",
+    "name": "Prelude in c-sharp minor Sergei Rachmaninov",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Prelude in c-sharp minor Sergei Rachmaninov"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "tallis",
+    "name": "Thomas Tallis",
+    "birth": 1505,
+    "death": 1585,
+    "name_variants": [
+      "Thomas Tallis"
+    ],
+    "date_variants": [
+      "1505–1585"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "titelouze",
+    "name": "Creator Spiritus Jehan Titelouze",
+    "birth": 1563,
+    "death": 1633,
+    "name_variants": [
+      "Creator Spiritus Jehan Titelouze"
+    ],
+    "date_variants": [
+      "1563–1633"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "walther",
+    "name": "Heiliger Geist  Johann Gottfried Walther",
+    "birth": 1684,
+    "death": 1748,
+    "name_variants": [
+      "Heiliger Geist  Johann Gottfried Walther"
+    ],
+    "date_variants": [
+      "1684–1748"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "bellando",
+    "name": "Offertoire  Domenico Bellando",
+    "birth": 1868,
+    "death": 1922,
+    "name_variants": [
+      "Offertoire  Domenico Bellando"
+    ],
+    "date_variants": [
+      "1868–1922"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "pachelbel",
+    "name": "Herr Jesu Christ  Johann Pachelbel",
+    "birth": 1653,
+    "death": 1706,
+    "name_variants": [
+      "Herr Jesu Christ  Johann Pachelbel"
+    ],
+    "date_variants": [
+      "1653–1706"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "fettke",
+    "name": "Tom Fettke",
+    "birth": 1941,
+    "death": null,
+    "name_variants": [
+      "arr. Tom Fettke"
+    ],
+    "date_variants": [
+      "b. 1941"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "scheer",
+    "name": "American Anthem Gene Scheer",
+    "birth": 1958,
+    "death": null,
+    "name_variants": [
+      "American Anthem Gene Scheer"
+    ],
+    "date_variants": [
+      "b. 1958"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "broughton",
+    "name": "O Gentle Savior  arr. Edward Broughton",
+    "birth": 1934,
+    "death": 2015,
+    "name_variants": [
+      "O Gentle Savior  arr. Edward Broughton"
+    ],
+    "date_variants": [
+      "1934–2015"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "rinck",
+    "name": "Prelude in F  Christian Heinrich Rinck",
+    "birth": 1770,
+    "death": 1846,
+    "name_variants": [
+      "Prelude in F  Christian Heinrich Rinck"
+    ],
+    "date_variants": [
+      "1770–1846"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "caccini",
+    "name": "Amarilli mia Bella Guilio Caccini",
+    "birth": 1551,
+    "death": 1618,
+    "name_variants": [
+      "Amarilli mia Bella Guilio Caccini"
+    ],
+    "date_variants": [
+      "1551–1618"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "gs",
+    "name": "Taste and See (James Moore) GS",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Taste and See (James Moore) GS"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "doane",
+    "name": "William Doane",
+    "birth": 1832,
+    "death": 1915,
+    "name_variants": [
+      "William Doane"
+    ],
+    "date_variants": [
+      "1832–1915"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "lafferty",
+    "name": "Seek Ye First      Karen Lafferty",
+    "birth": 1948,
+    "death": null,
+    "name_variants": [
+      "Seek Ye First      Karen Lafferty"
+    ],
+    "date_variants": [
+      "b. 1948"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "richards",
+    "name": "R’tzei Stephen Richards",
+    "birth": 1935,
+    "death": null,
+    "name_variants": [
+      "R’tzei Stephen Richards"
+    ],
+    "date_variants": [
+      "b. 1935"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "isaacson",
+    "name": "Sh’viti Adonai Michael Isaacson",
+    "birth": 1946,
+    "death": null,
+    "name_variants": [
+      "Sh’viti Adonai Michael Isaacson"
+    ],
+    "date_variants": [
+      "b. 1946"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "raney",
+    "name": "Thomas Dorsey arr. Joel Raney",
+    "birth": 1956,
+    "death": null,
+    "name_variants": [
+      "Thomas Dorsey arr. Joel Raney"
+    ],
+    "date_variants": [
+      "b. 1956"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "carter",
+    "name": "John Carter",
+    "birth": 1930,
+    "death": null,
+    "name_variants": [
+      "John Carter"
+    ],
+    "date_variants": [
+      "b. 1930"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "sheppard",
+    "name": "Franklin Sheppard",
+    "birth": 1952,
+    "death": 1930,
+    "name_variants": [
+      "Franklin Sheppard"
+    ],
+    "date_variants": [
+      "1952–1930"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "hemy",
+    "name": "Henry Hemy",
+    "birth": 1818,
+    "death": 1888,
+    "name_variants": [
+      "Henry Hemy"
+    ],
+    "date_variants": [
+      "1818–1888"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "elman",
+    "name": "D 889 Franz Schubert/Arr. Mischa Elman",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "D 889 Franz Schubert/Arr. Mischa Elman"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "ward",
+    "name": "Michael Ward",
+    "birth": 1967,
+    "death": 2024,
+    "name_variants": [
+      "Michael Ward"
+    ],
+    "date_variants": [
+      "1967–2024"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "libergen",
+    "name": "J.S. Bach arr. Patrick Libergen",
+    "birth": 1949,
+    "death": null,
+    "name_variants": [
+      "J.S. Bach arr. Patrick Libergen"
+    ],
+    "date_variants": [
+      "b. 1949"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "hays",
+    "name": "Mark Hays",
+    "birth": 1959,
+    "death": null,
+    "name_variants": [
+      "Mark Hays"
+    ],
+    "date_variants": [
+      "b. 1959"
+    ],
+    "occurrences": 1,
+    "date_ambiguous": false
+  },
+  {
+    "key": "dorsey",
+    "name": "Thomas A. Dorsey",
+    "birth": null,
+    "death": null,
+    "name_variants": [
+      "Thomas A. Dorsey"
+    ],
+    "date_variants": [],
+    "occurrences": 1,
+    "date_ambiguous": false
+  }
+]
