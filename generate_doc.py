@@ -165,12 +165,14 @@ def add_run(p, text, font=DEFAULT_FONT, bold=False, italic=False,
     return r
 
 
-def tight_paragraph(doc):
+def tight_paragraph(doc, keep_with_next=False, keep_together=False):
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.space_before = Pt(0)
     pf.space_after = Pt(0)
     pf.line_spacing = 1.0
+    pf.keep_with_next = keep_with_next
+    pf.keep_together = keep_together
     return p
 
 
@@ -309,24 +311,26 @@ def generate_template(season, year):
         date_str = f'{MONTHS_REV[sunday.month]} {sunday.day:02d}'
         # Include the colon even when the occasion is blank so the pastor can type after it.
         header_text = f'{date_str}:' + (f" {data['occasion']}" if data['occasion'] else '')
-        p = tight_paragraph(doc)
+        # Keep each Sunday block together when possible so a lone date heading
+        # does not get stranded at the bottom of a page.
+        p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
         add_run(p, header_text, font=DATE_FONT, bold=True, color_hex=sunday_color)
 
         # Pastor-owned lines are intentionally left for manual entry.
         # The sync/update code never touches these.
-        p = tight_paragraph(doc)
+        p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
         write_pastor_line(p, 'OPENING HYMN:')
 
         for slot in ['Prelude', 'Min Music', 'Offering']:
             piece = data['pieces'][slot]
-            p = tight_paragraph(doc)
+            p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
             write_slot_paragraph(p, slot, piece)
 
-        p = tight_paragraph(doc)
+        p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
         write_pastor_line(p, 'CLOSING HYMN:')
 
         piece = data['pieces']['Postlude']
-        p = tight_paragraph(doc)
+        p = tight_paragraph(doc, keep_with_next=False, keep_together=True)
         write_slot_paragraph(p, 'Postlude', piece)
         p.paragraph_format.space_after = Pt(8)
 
