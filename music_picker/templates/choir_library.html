@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Choir Library</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-50 text-stone-900">
+  <main class="max-w-7xl mx-auto p-6">
+    <div class="mb-5">
+      <a href="{{ url_for('main.libraries') }}" class="text-sm text-stone-500 hover:text-stone-900">← Libraries</a>
+      <h1 class="text-3xl font-semibold mt-2">Choir Library</h1>
+      <p class="text-stone-600 mt-1">{{ rows|length }} pieces{% if q %} matching “{{ q }}”{% endif %}</p>
+    </div>
+
+    <form method="get" class="mb-5 flex gap-2">
+      <input name="q" value="{{ q or '' }}" placeholder="Search title, composer, season, voicing…" class="flex-1 rounded-lg border border-stone-300 px-3 py-2">
+      <button class="rounded-lg bg-stone-900 text-white px-4 py-2">Search</button>
+      {% if q %}
+        <a href="{{ url_for('main.choir_library') }}" class="rounded-lg border border-stone-300 px-4 py-2">Clear</a>
+      {% endif %}
+    </form>
+
+    <div class="overflow-x-auto bg-white border border-stone-200 rounded-2xl shadow-sm">
+      <table class="min-w-full text-sm">
+        <thead class="bg-stone-100 text-stone-600">
+          <tr>
+            <th class="text-left p-3">Title</th>
+            <th class="text-left p-3">Voicing</th>
+            <th class="text-left p-3">Season</th>
+            <th class="text-left p-3">Style</th>
+            <th class="text-left p-3">Copies</th>
+            <th class="text-left p-3">Composer</th>
+            <th class="text-left p-3">Publisher</th>
+            <th class="text-left p-3">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            <tr class="border-t border-stone-100">
+              <td class="p-3 font-medium">{{ r.title }}</td>
+              <td class="p-3">{{ r.voicing }}</td>
+              <td class="p-3">{{ r.season }}</td>
+              <td class="p-3">{{ r.style }}</td>
+              <td class="p-3">{{ r.copies }}</td>
+              <td class="p-3">{{ r.composer }}</td>
+              <td class="p-3">{{ r.publisher }}</td>
+              <td class="p-3 text-stone-600">
+                {% if r.instrumentation %}<div>{{ r.instrumentation }}</div>{% endif %}
+                {% if r.scripture %}<div>{{ r.scripture }}</div>{% endif %}
+                {% if r.choice %}<div>{{ r.choice }}</div>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

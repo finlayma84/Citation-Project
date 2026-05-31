@@ -277,3 +277,65 @@ def delete_title():
         if r['season'] and r['calendar_year']:
             try_sync_doc(r['season'], r['calendar_year'])
     return redirect(url_for('main.index', deleted='1'))
+
+
+@bp.route('/libraries')
+def libraries():
+    return render_template('libraries.html')
+
+
+@bp.route('/libraries/choir')
+def choir_library():
+    q = request.args.get('q', '').strip()
+    db = get_db()
+
+    if q:
+        like = f"%{q}%"
+        rows = db.execute("""
+            SELECT * FROM choir_library
+            WHERE active=1 AND (
+                title LIKE ?
+                OR composer LIKE ?
+                OR voicing LIKE ?
+                OR season LIKE ?
+                OR style LIKE ?
+                OR publisher LIKE ?
+                OR instrumentation LIKE ?
+                OR scripture LIKE ?
+                OR choice LIKE ?
+            )
+            ORDER BY title COLLATE NOCASE
+        """, (like, like, like, like, like, like, like, like, like)).fetchall()
+    else:
+        rows = db.execute("""
+            SELECT * FROM choir_library
+            WHERE active=1
+            ORDER BY title COLLATE NOCASE
+        """).fetchall()
+
+    return render_template('choir_library.html', rows=rows, q=q)
+
+
+@bp.route('/libraries/bells')
+def bell_library():
+    q = request.args.get('q', '').strip()
+    db = get_db()
+
+    if q:
+        like = f"%{q}%"
+        rows = db.execute("""
+            SELECT * FROM bell_library
+            WHERE active=1 AND (
+                title LIKE ?
+                OR composer_arranger LIKE ?
+            )
+            ORDER BY title COLLATE NOCASE
+        """, (like, like)).fetchall()
+    else:
+        rows = db.execute("""
+            SELECT * FROM bell_library
+            WHERE active=1
+            ORDER BY title COLLATE NOCASE
+        """).fetchall()
+
+    return render_template('bell_library.html', rows=rows, q=q)
