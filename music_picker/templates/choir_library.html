@@ -7,18 +7,66 @@
 </head>
 <body class="bg-stone-50 text-stone-900">
   <main class="max-w-7xl mx-auto p-6">
-    <div class="mb-5">
-      <a href="{{ url_for('main.libraries') }}" class="text-sm text-stone-500 hover:text-stone-900">← Libraries</a>
-      <h1 class="text-3xl font-semibold mt-2">Choir Library</h1>
-      <p class="text-stone-600 mt-1">{{ rows|length }} pieces{% if q %} matching “{{ q }}”{% endif %}</p>
+    <div class="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <a href="{{ url_for('main.libraries') }}" class="text-sm text-stone-500 hover:text-stone-900">← Libraries</a>
+        <h1 class="text-3xl font-semibold mt-2">Choir Library</h1>
+        <p class="text-stone-600 mt-1">{{ rows|length }} pieces shown</p>
+      </div>
+      <a href="{{ url_for('main.choir_library_new') }}" class="rounded-lg bg-stone-900 text-white px-4 py-2 text-sm">Add choir piece</a>
     </div>
 
-    <form method="get" class="mb-5 flex gap-2">
-      <input name="q" value="{{ q or '' }}" placeholder="Search title, composer, season, voicing…" class="flex-1 rounded-lg border border-stone-300 px-3 py-2">
-      <button class="rounded-lg bg-stone-900 text-white px-4 py-2">Search</button>
-      {% if q %}
+    <form method="get" class="mb-5 bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
+      <div class="grid md:grid-cols-5 gap-3">
+        <div class="md:col-span-2">
+          <label class="block text-xs uppercase tracking-wide text-stone-500 mb-1">Search</label>
+          <input name="q" value="{{ q or '' }}" placeholder="Title, composer, publisher, notes…" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-stone-500 mb-1">Season</label>
+          <select name="season" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+            <option value="">All seasons</option>
+            {% for item in seasons %}
+              <option value="{{ item }}" {% if item == season %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-stone-500 mb-1">Voicing</label>
+          <select name="voicing" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+            <option value="">All voicings</option>
+            {% for item in voicings %}
+              <option value="{{ item }}" {% if item == voicing %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-stone-500 mb-1">Style</label>
+          <select name="style" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+            <option value="">All styles</option>
+            {% for item in styles %}
+              <option value="{{ item }}" {% if item == style %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3 flex items-end gap-3">
+        <div class="w-48">
+          <label class="block text-xs uppercase tracking-wide text-stone-500 mb-1">Difficulty</label>
+          <select name="difficulty" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+            <option value="">All difficulties</option>
+            {% for item in difficulties %}
+              <option value="{{ item }}" {% if item == difficulty %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="rounded-lg bg-stone-900 text-white px-4 py-2">Filter</button>
         <a href="{{ url_for('main.choir_library') }}" class="rounded-lg border border-stone-300 px-4 py-2">Clear</a>
-      {% endif %}
+      </div>
     </form>
 
     <div class="overflow-x-auto bg-white border border-stone-200 rounded-2xl shadow-sm">
@@ -27,21 +75,44 @@
           <tr>
             <th class="text-left p-3">Title</th>
             <th class="text-left p-3">Voicing</th>
+            <th class="text-left p-3">Diff</th>
             <th class="text-left p-3">Season</th>
             <th class="text-left p-3">Style</th>
             <th class="text-left p-3">Copies</th>
             <th class="text-left p-3">Composer</th>
             <th class="text-left p-3">Publisher</th>
             <th class="text-left p-3">Notes</th>
+            <th class="text-right p-3">Edit</th>
           </tr>
         </thead>
         <tbody>
           {% for r in rows %}
             <tr class="border-t border-stone-100">
               <td class="p-3 font-medium">{{ r.title }}</td>
-              <td class="p-3">{{ r.voicing }}</td>
-              <td class="p-3">{{ r.season }}</td>
-              <td class="p-3">{{ r.style }}</td>
+              <td class="p-3">
+                {{ r.voicing }}
+                {% if r.voicing_raw and r.voicing_raw != r.voicing %}
+                  <div class="text-xs text-stone-400">raw: {{ r.voicing_raw }}</div>
+                {% endif %}
+              </td>
+              <td class="p-3">
+                {{ r.difficulty }}
+                {% if r.difficulty_raw and r.difficulty_raw != r.difficulty %}
+                  <div class="text-xs text-stone-400">raw: {{ r.difficulty_raw }}</div>
+                {% endif %}
+              </td>
+              <td class="p-3">
+                {{ r.season }}
+                {% if r.season_raw and r.season_raw != r.season %}
+                  <div class="text-xs text-stone-400">raw: {{ r.season_raw }}</div>
+                {% endif %}
+              </td>
+              <td class="p-3">
+                {{ r.style }}
+                {% if r.style_raw and r.style_raw != r.style %}
+                  <div class="text-xs text-stone-400">raw: {{ r.style_raw }}</div>
+                {% endif %}
+              </td>
               <td class="p-3">{{ r.copies }}</td>
               <td class="p-3">{{ r.composer }}</td>
               <td class="p-3">{{ r.publisher }}</td>
@@ -49,6 +120,9 @@
                 {% if r.instrumentation %}<div>{{ r.instrumentation }}</div>{% endif %}
                 {% if r.scripture %}<div>{{ r.scripture }}</div>{% endif %}
                 {% if r.choice %}<div>{{ r.choice }}</div>{% endif %}
+              </td>
+              <td class="p-3 text-right">
+                <a class="text-stone-600 hover:text-stone-950" href="{{ url_for('main.choir_library_edit', item_id=r.id) }}">Edit</a>
               </td>
             </tr>
           {% endfor %}
