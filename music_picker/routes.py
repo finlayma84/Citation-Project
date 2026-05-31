@@ -1,3 +1,6 @@
+from .liturgy import liturgical_name
+from .themes import get_theme_for_date
+
 from datetime import date as date_class
 
 from flask import Blueprint, abort, redirect, render_template, request, url_for
@@ -41,6 +44,14 @@ def index():
     sundays_list = []
     for d in sundays_in_month(view_year, view_month):
         summary = get_sunday_summary(d)
+        sunday_season = season_for_date(d)
+        sunday_liturgical = liturgical_name(d)
+        theme_context = get_theme_for_date(
+            d,
+            liturgical_name=sunday_liturgical,
+            season=sunday_season,
+        )
+
         sundays_list.append({
             'iso': d.isoformat(),
             'display': d.strftime('%a, %b %-d'),
@@ -48,21 +59,25 @@ def index():
             'is_past': d < today,
             'pieces': summary['pieces'],
             'occasion': summary['occasion'],
-            'season': season_for_date(d),
+            'season': sunday_season,
+            'liturgical': sunday_liturgical,
+            'theme_context': theme_context,
         })
 
-    today_tuple = (today.year, today.month, today.day)
     all_mine = get_db().execute("SELECT * FROM pieces WHERE chosen_by='Michael'").fetchall()
     library_rows = [r for r in all_mine if is_library(r)]
-    played = [r for r in all_mine if (not is_library(r)) and to_sortable_date(r) < today_tuple]
+    played = [r for r in all_mine if (not is_library(r)) and to_sortable_date(r) != (0, 0, 0)]
 
-    if season:
-        played = [r for r in played if r['season'] == season]
-    if slot:
-        played = [r for r in played if r['slot'] == slot]
+    # When searching, search across everything — season/slot filters are
+    # for browsing, not for narrowing search results.
     if search_q:
         played = [r for r in played if matches_search(dict(r), search_q)]
         library_rows = [r for r in library_rows if matches_search(dict(r), search_q)]
+    else:
+        if season:
+            played = [r for r in played if r['season'] == season]
+        if slot:
+            played = [r for r in played if r['slot'] == slot]
 
     seen = {}
     for r in played:
@@ -213,11 +228,13 @@ def plan(iso):
     limit = None if show_all else 25
     past_pieces, past_total = get_past_pieces_for_season(filter_season if filter_season else None, search_q=search_q, limit=limit)
     past_truncated = (not show_all) and past_total > 25
+    liturgical = liturgical_name(the_date)
+    sunday_theme = get_theme_for_date(the_date, liturgical_name=liturgical, season=form_season)
     return render_template('plan.html', iso=iso, display_date=the_date.strftime('%A, %B %-d, %Y'),
         slot_data=slot_data, slot_names=SLOTS, hymns=hymns, occasion=occasion, form_season=form_season,
         seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season, search_q=search_q,
         past_pieces=past_pieces, past_total=past_total, past_truncated=past_truncated,
-        season_palette=season_palette)
+        season_palette=season_palette, liturgical=liturgical, sunday_theme=sunday_theme)
 
 
 @bp.route('/piece/<path:title>')

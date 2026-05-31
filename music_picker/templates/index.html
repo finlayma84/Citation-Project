@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -154,6 +153,7 @@
 
 <body>
 <div class="max-w-5xl mx-auto px-4 py-8">
+
   <header class="mb-8">
     <h1 class="text-3xl font-semibold tracking-tight text-on-dark">Repertoire</h1>
     <p class="text-on-dark-muted mt-1 text-sm">Sunday morning picker</p>
@@ -170,77 +170,8 @@
   {% if request.args.get('deleted') == '1' %}
   <div class="mb-4 p-3 notice-success rounded-lg text-sm">Entry deleted.</div>
   {% endif %}
-{% if request.args.get('library_added') == '1' %}
-<div class="mb-4 p-3 notice-success rounded-lg text-sm">Added to library: {{ request.args.get('added_title') }}</div>
-{% endif %}
-
-  <form method="get" class="card flex flex-wrap items-end gap-3 mb-6 p-4">
-    <div class="flex-1 min-w-[200px]">
-      <label class="label-tiny block mb-1">Search</label>
-      <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Title, composer, year, source…" class="w-full">
-    </div>
-    <div>
-      <label class="label-tiny block mb-1">Season</label>
-      <select name="season">
-        <option value="">All seasons</option>
-        {% for s in seasons %}<option value="{{ s }}" {% if s == season %}selected{% endif %}>{{ s }}</option>{% endfor %}
-      </select>
-    </div>
-    <div>
-      <label class="label-tiny block mb-1">Slot</label>
-      <select name="slot">
-        <option value="">All slots</option>
-        {% for s in slots %}<option value="{{ s }}" {% if s == slot %}selected{% endif %}>{{ s }}</option>{% endfor %}
-      </select>
-    </div>
-    <button type="submit" class="btn-dark">Filter</button>
-    {% if search_q or season or slot %}<a href="/" class="text-stone-500 hover:text-stone-700 text-sm px-2 py-2">Clear</a>{% endif %}
-  </form>
-
-  <form method="post" action="/generate" class="card flex flex-wrap items-end gap-3 mb-8 p-4">
-    <div>
-      <label class="label-tiny block mb-1">Generate template for</label>
-      <select name="season">{% for s in seasons %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
-    </div>
-    <div>
-      <label class="label-tiny block mb-1">Year</label>
-      <input type="number" name="year" value="{{ default_year }}" min="2020" max="2035" class="w-24">
-    </div>
-    <button type="submit" class="btn-dark">Generate template</button>
-  </form>
-<form method="post" action="/library/add" class="card flex flex-wrap items-end gap-3 mb-8 p-4">
-  <div class="flex-1 min-w-[180px]">
-    <label class="label-tiny block mb-1">Add to library — Title</label>
-    <input type="text" name="title" required class="w-full">
-  </div>
-  <div class="flex-1 min-w-[160px]">
-    <label class="label-tiny block mb-1">Composer / arr.</label>
-    <input type="text" name="composer" class="w-full">
-  </div>
-  <div>
-    <label class="label-tiny block mb-1">Dates</label>
-    <input type="text" name="composer_dates" placeholder="optional" class="w-32">
-  </div>
-  <div class="flex-1 min-w-[160px]">
-    <label class="label-tiny block mb-1">Source</label>
-    <input type="text" name="source_file" placeholder="Book or collection" class="w-full">
-  </div>
-  <button type="submit" class="btn-dark">Add</button>
-</form>
-  {% if doc_status %}
-  <section class="mb-8">
-    <h2 class="text-sm font-semibold text-on-dark-muted mb-2 uppercase tracking-wider">Synced documents</h2>
-    <div class="card overflow-hidden">
-      <table class="w-full text-xs">
-        <thead><tr><th class="text-left px-3 py-2">Season</th><th class="text-left px-3 py-2">Generated</th><th class="text-left px-3 py-2">Last synced</th></tr></thead>
-        <tbody>
-          {% for key, info in doc_status.items() %}
-          <tr><td class="px-3 py-2">{{ key }}</td><td class="px-3 py-2 text-stone-500">{{ info.generated_at }}</td><td class="px-3 py-2 text-stone-500">{{ info.last_synced_at }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
+  {% if request.args.get('library_added') == '1' %}
+  <div class="mb-4 p-3 notice-success rounded-lg text-sm">Added to library: {{ request.args.get('added_title') }}</div>
   {% endif %}
 
   <section class="mb-8">
@@ -265,7 +196,16 @@
               <a href="/plan/{{ s.iso }}" class="link {% if s.is_today %}font-semibold{% endif %}" {% if s.is_today %}style="color: {{ p.accent }};"{% endif %}>
                 {{ s.display }}{% if s.is_today %} · today{% endif %}
               </a>
-              <div class="text-xs mt-0.5" style="color: {{ p.accent }};">{{ p.label }}{% if s.occasion %} · <span class="text-stone-500">{{ s.occasion }}</span>{% endif %}</div>
+              <div class="text-xs mt-0.5" style="color: {{ p.accent }};">
+                {{ p.label }}{% if s.liturgical %} · {{ s.liturgical }}{% endif %}
+                {% if s.theme_context and s.theme_context.theme %}
+                  · <span class="text-stone-500">{{ s.theme_context.theme }}</span>
+                {% elif s.occasion %}
+                  · <span class="text-stone-500">{{ s.occasion }}</span>
+                {% elif s.theme_context and s.theme_context.planning_note %}
+                  · <span class="text-stone-500">{{ s.theme_context.planning_note }}</span>
+                {% endif %}
+              </div>
             </td>
             {% for slot in ['Prelude', 'Min Music', 'Offering', 'Postlude'] %}
               <td class="px-4 py-3 text-stone-700">
@@ -283,7 +223,30 @@
     <p class="text-xs text-on-dark-muted mt-2">Click a Sunday to plan it.</p>
   </section>
 
-  <section>
+  <form method="get" class="card flex flex-wrap items-end gap-3 mb-6 p-4">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label-tiny block mb-1">Search</label>
+      <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Title, composer, year, source…" class="w-full">
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Season</label>
+      <select name="season">
+        <option value="">All seasons</option>
+        {% for s in seasons %}<option value="{{ s }}" {% if s == season %}selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Slot</label>
+      <select name="slot">
+        <option value="">All slots</option>
+        {% for s in slots %}<option value="{{ s }}" {% if s == slot %}selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-dark">Filter</button>
+    {% if search_q or season or slot %}<a href="/" class="text-stone-500 hover:text-stone-700 text-sm px-2 py-2">Clear</a>{% endif %}
+  </form>
+
+  <section class="mb-8">
     <h2 class="text-xl font-semibold text-on-dark mb-3">
       History
       <span class="text-on-dark-muted text-sm font-normal ml-2">{{ count }} unique pieces{% if search_q or season or slot %} matching filters{% endif %} · longest since last played first</span>
@@ -310,6 +273,55 @@
       </table>
     </div>
   </section>
+
+  <form method="post" action="/library/add" class="card flex flex-wrap items-end gap-3 mb-6 p-4">
+    <div class="flex-1 min-w-[180px]">
+      <label class="label-tiny block mb-1">Add to library — Title</label>
+      <input type="text" name="title" required class="w-full">
+    </div>
+    <div class="flex-1 min-w-[160px]">
+      <label class="label-tiny block mb-1">Composer / arr.</label>
+      <input type="text" name="composer" class="w-full">
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Dates</label>
+      <input type="text" name="composer_dates" placeholder="optional" class="w-32">
+    </div>
+    <div class="flex-1 min-w-[160px]">
+      <label class="label-tiny block mb-1">Source</label>
+      <input type="text" name="source_file" placeholder="Book or collection" class="w-full">
+    </div>
+    <button type="submit" class="btn-dark">Add</button>
+  </form>
+
+  <form method="post" action="/generate" class="card flex flex-wrap items-end gap-3 mb-6 p-4">
+    <div>
+      <label class="label-tiny block mb-1">Generate template for</label>
+      <select name="season">{% for s in seasons %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
+    </div>
+    <div>
+      <label class="label-tiny block mb-1">Year</label>
+      <input type="number" name="year" value="{{ default_year }}" min="2020" max="2035" class="w-24">
+    </div>
+    <button type="submit" class="btn-dark">Generate template</button>
+  </form>
+
+  {% if doc_status %}
+  <section class="mb-8">
+    <h2 class="text-sm font-semibold text-on-dark-muted mb-2 uppercase tracking-wider">Synced documents</h2>
+    <div class="card overflow-hidden">
+      <table class="w-full text-xs">
+        <thead><tr><th class="text-left px-3 py-2">Season</th><th class="text-left px-3 py-2">Generated</th><th class="text-left px-3 py-2">Last synced</th></tr></thead>
+        <tbody>
+          {% for key, info in doc_status.items() %}
+          <tr><td class="px-3 py-2">{{ key }}</td><td class="px-3 py-2 text-stone-500">{{ info.generated_at }}</td><td class="px-3 py-2 text-stone-500">{{ info.last_synced_at }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
 </div>
 </body>
 </html>
