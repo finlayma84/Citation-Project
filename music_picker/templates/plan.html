@@ -160,9 +160,28 @@
     <h1 class="text-2xl font-semibold tracking-tight text-on-dark">{{ display_date }}</h1>
     <p class="mt-1">
       <span class="font-medium" style="color: {{ p.accent }};">{{ p.label }}</span>
+      {% if liturgical %}<span class="ml-2 text-on-dark-muted">· {{ liturgical }}</span>{% endif %}
       {% if occasion %}<span class="ml-2 text-on-dark-muted">· {{ occasion }}</span>{% endif %}
     </p>
   </header>
+
+  {% if sunday_theme %}
+  <section class="card mb-6 p-4" style="background: var(--bg-card-subtle);">
+    <h2 class="label-tiny mb-2">Sunday context</h2>
+    <div class="text-sm text-stone-800 space-y-1">
+      {% if sunday_theme.theme %}
+      <p><span class="font-semibold">Theme:</span> {{ sunday_theme.theme }}</p>
+      {% endif %}
+      {% if sunday_theme.planning_note and sunday_theme.planning_note != sunday_theme.theme %}
+      <p><span class="font-semibold">Planning note:</span> {{ sunday_theme.planning_note }}</p>
+      {% endif %}
+      <p class="text-xs text-stone-500">
+        {% if sunday_theme.lectionary_year %}Year {{ sunday_theme.lectionary_year }}{% endif %}
+        {% if sunday_theme.source %}{% if sunday_theme.lectionary_year %} · {% endif %}Source: {{ sunday_theme.source }}{% endif %}
+      </p>
+    </div>
+  </section>
+  {% endif %}
 
   {% if hymns %}
   <section class="card mb-6 p-4" style="background: var(--notice-warn-bg); border-color: var(--notice-warn-border);">
@@ -221,12 +240,28 @@
               {% for s in seasons %}<option value="{{ s }}" {% if s == filter_season %}selected{% endif %}>{{ s }}</option>{% endfor %}
             </select>
           </div>
+
+          <div>
+            <label class="label-tiny block mb-1">Slot</label>
+            <select name="filter_slot" class="w-full">
+              <option value="">All slots</option>
+              {% for s in slot_names %}
+                <option value="{{ s }}" {% if s == filter_slot %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
           <div class="flex gap-2">
             <button type="submit" class="btn-dark flex-1 text-xs py-1">Search</button>
             {% if search_q %}<button type="button" id="sidebar-clear" class="text-xs text-stone-500 px-2 py-1">Clear</button>{% endif %}
           </div>
         </form>
-        <p class="text-xs text-stone-500 mb-3">{{ past_total }} unique{% if search_q %} matching "{{ search_q }}"{% endif %} · longest since last played first</p>
+        <p id="sidebar-count" class="text-xs text-stone-500 mb-3">
+          {{ past_total }} unique
+          {% if search_q %} · matching "{{ search_q }}"{% endif %}
+          {% if filter_season %} · Season: {{ filter_season }}{% else %} · All seasons{% endif %}
+          {% if filter_slot %} · Slot: {{ filter_slot }}{% endif %}
+          · longest since last played first
+        </p>
         <div id="past-list" class="space-y-1 max-h-[70vh] overflow-y-auto pr-1">
           {% for p in past_pieces %}
           <div class="text-sm border border-stone-200 rounded p-2 group" style="background: #fff;" data-title="{{ p.title }}" data-composer="{{ p.composer }}" data-dates="{{ p.composer_dates }}">
@@ -235,9 +270,13 @@
               {% if p.library %}<span class="ml-1 badge-library">lib</span>{% endif %}
             </div>
             <div class="text-xs text-stone-500 mt-0.5">
-              {{ p.composer or '—' }}{% if p.composer_dates %} ({{ p.composer_dates }}){% endif %}
-              · {% if p.library %}<span class="italic">never played</span>{% else %}last {{ p.last_played_str or 'unknown' }} · {{ p.times }}×{% endif %}
-            </div>
+  {{ p.composer or '—' }}{% if p.composer_dates %} ({{ p.composer_dates }}){% endif %}
+  · {% if p.library %}<span class="italic">never played</span>
+    {% elif p.scheduled_only %}<span class="italic" style="color: var(--accent-action);">scheduled for {{ p.next_scheduled_str }}</span>
+    {% else %}last {{ p.last_played_str or 'unknown' }} · {{ p.times }}×
+      {% if p.next_scheduled_str %} · <span style="color: var(--accent-action);">next: {{ p.next_scheduled_str }}</span>{% endif %}
+    {% endif %}
+</div>
             <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
               {% for slot in slot_names %}
                 <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
@@ -269,7 +308,30 @@ function wireUp() {
       setTimeout(() => titleEl.style.outline = '', 600);
     });
   });
+  wireShowAll();
 }
+
+function wireShowAll() {
+  const showAll = document.getElementById('show-all-btn');
+  if (!showAll) return;
+  showAll.addEventListener('click', async () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('all_past', '1');
+    const resp = await fetch(url.toString());
+    const html = await resp.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const newCount = doc.getElementById('sidebar-count');
+    const newList = doc.getElementById('past-list');
+    if (newCount) {
+      document.getElementById('sidebar-count').replaceWith(newCount);
+    }
+    if (newList) {
+      document.getElementById('past-list').replaceWith(newList);
+      wireUp();
+    }
+  });
+}
+
 async function refreshSidebar(params) {
   const url = new URL(window.location.href);
   url.search = '';
@@ -278,7 +340,9 @@ async function refreshSidebar(params) {
   const resp = await fetch(url.toString());
   const html = await resp.text();
   const doc = new DOMParser().parseFromString(html, 'text/html');
+  const newCount = doc.getElementById('sidebar-count');
   const newList = doc.getElementById('past-list');
+  if (newCount) { document.getElementById('sidebar-count').replaceWith(newCount); }
   if (newList) { document.getElementById('past-list').replaceWith(newList); wireUp(); }
   const newForm = doc.getElementById('sidebar-form');
   if (newForm) {
@@ -292,28 +356,43 @@ async function refreshSidebar(params) {
     }
   }
 }
+
 function wireSidebarForm() {
   const form = document.getElementById('sidebar-form');
   if (!form) return;
-  form.addEventListener('submit', e => { e.preventDefault(); refreshSidebar({ q: form.querySelector('[name=q]').value, filter_season: form.querySelector('[name=filter_season]').value }); });
-  const seasonSel = form.querySelector('[name=filter_season]');
-  if (seasonSel) seasonSel.addEventListener('change', () => refreshSidebar({ q: form.querySelector('[name=q]').value, filter_season: seasonSel.value }));
-  const clearBtn = document.getElementById('sidebar-clear');
-  if (clearBtn) clearBtn.addEventListener('click', () => { form.querySelector('[name=q]').value = ''; refreshSidebar({ q: '', filter_season: seasonSel.value }); });
-}
-wireUp(); wireSidebarForm();
-const showAll = document.getElementById('show-all-btn');
-if (showAll) {
-  showAll.addEventListener('click', async () => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('all_past', '1');
-    const resp = await fetch(url.toString());
-    const html = await resp.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const newList = doc.getElementById('past-list');
-    if (newList) { document.getElementById('past-list').replaceWith(newList); wireUp(); }
+
+  const getSidebarParams = () => ({
+    q: form.querySelector('[name=q]')?.value || '',
+    filter_season: form.querySelector('[name=filter_season]')?.value || '',
+    filter_slot: form.querySelector('[name=filter_slot]')?.value || ''
   });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    refreshSidebar(getSidebarParams());
+  });
+
+  const seasonSel = form.querySelector('[name=filter_season]');
+  if (seasonSel) {
+    seasonSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
+  }
+
+  const slotSel = form.querySelector('[name=filter_slot]');
+  if (slotSel) {
+    slotSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
+  }
+
+  const clearBtn = document.getElementById('sidebar-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      form.querySelector('[name=q]').value = '';
+      refreshSidebar(getSidebarParams());
+    });
+  }
 }
+
+wireUp();
+wireSidebarForm();
 </script>
 </body>
 </html>

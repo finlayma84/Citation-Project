@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local/debug files
+debug_vanderbilt.html
+
+# Local archive/backups
+archive/database_backups/
+archive/import_data/

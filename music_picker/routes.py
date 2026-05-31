@@ -17,7 +17,13 @@ from .calendar_utils import (
 from .constants import MONTH_NAMES, PERFORMERS, SEASONS, SLOTS, season_palette
 from .db import get_db
 from .documents import generate_document_template, try_sync_doc
-from .services import get_past_pieces_for_season, get_sunday_summary, is_library, matches_search
+from .services import (
+    get_past_pieces_for_season,
+    get_repertoire_results,
+    get_sunday_summary,
+    is_library,
+    matches_search,
+)
 
 
 bp = Blueprint('main', __name__)
@@ -64,54 +70,12 @@ def index():
             'theme_context': theme_context,
         })
 
-    all_mine = get_db().execute("SELECT * FROM pieces WHERE chosen_by='Michael'").fetchall()
-    library_rows = [r for r in all_mine if is_library(r)]
-    played = [r for r in all_mine if (not is_library(r)) and to_sortable_date(r) != (0, 0, 0)]
-
-    # When searching, search across everything — season/slot filters are
-    # for browsing, not for narrowing search results.
-    if search_q:
-        played = [r for r in played if matches_search(dict(r), search_q)]
-        library_rows = [r for r in library_rows if matches_search(dict(r), search_q)]
-    else:
-        if season:
-            played = [r for r in played if r['season'] == season]
-        if slot:
-            played = [r for r in played if r['slot'] == slot]
-
-    seen = {}
-    for r in played:
-        if r['title'] not in seen:
-            seen[r['title']] = {'row': r, 'count': 0, 'last': (0, 0, 0)}
-        seen[r['title']]['count'] += 1
-        d = to_sortable_date(r)
-        if d > seen[r['title']]['last']:
-            seen[r['title']]['last'] = d
-
-    played_titles = set(seen.keys())
-    unique_rows = []
-    for r in library_rows:
-        if r['title'] in played_titles:
-            continue
-        unique_rows.append({
-            'title': r['title'],
-            'composer': r['composer'] or '',
-            'last_played': (0, 0, 0),
-            'last_played_str': '',
-            'times': 0,
-            'library': True,
-        })
-
-    played_out = [{
-        'title': v['row']['title'],
-        'composer': v['row']['composer'],
-        'last_played': v['last'],
-        'last_played_str': format_last_played(v['last']),
-        'times': v['count'],
-        'library': False,
-    } for v in seen.values()]
-    played_out.sort(key=lambda r: r['last_played'])
-    unique_rows.extend(played_out)
+    unique_rows, count = get_repertoire_results(
+        search_q=search_q,
+        season=season,
+        slot=slot,
+        limit=None,
+    )
 
     doc_status_rows = get_db().execute(
         "SELECT season_year, generated_at, last_synced_at FROM doc_paths ORDER BY season_year"
@@ -121,7 +85,7 @@ def index():
     return render_template(
         'index.html',
         rows=unique_rows,
-        count=len(unique_rows),
+        count=count,
         sundays=sundays_list,
         month_label=f"{MONTH_NAMES[view_month]} {view_year}",
         prev_month_iso=f"{pmy:04d}-{pmm:02d}",
@@ -223,16 +187,23 @@ def plan(iso):
         filter_season = ''
     else:
         filter_season = filter_season_raw
+    filter_slot = request.args.get('filter_slot', '')
     search_q = request.args.get('q', '').strip()
     show_all = request.args.get('all_past') == '1'
     limit = None if show_all else 25
-    past_pieces, past_total = get_past_pieces_for_season(filter_season if filter_season else None, search_q=search_q, limit=limit)
+    past_pieces, past_total = get_past_pieces_for_season(
+        filter_season if filter_season else None,
+        search_q=search_q,
+        limit=limit,
+        slot=filter_slot,
+    )
     past_truncated = (not show_all) and past_total > 25
     liturgical = liturgical_name(the_date)
     sunday_theme = get_theme_for_date(the_date, liturgical_name=liturgical, season=form_season)
     return render_template('plan.html', iso=iso, display_date=the_date.strftime('%A, %B %-d, %Y'),
         slot_data=slot_data, slot_names=SLOTS, hymns=hymns, occasion=occasion, form_season=form_season,
-        seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season, search_q=search_q,
+        seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season,
+        filter_slot=filter_slot, search_q=search_q,
         past_pieces=past_pieces, past_total=past_total, past_truncated=past_truncated,
         season_palette=season_palette, liturgical=liturgical, sunday_theme=sunday_theme)
 
