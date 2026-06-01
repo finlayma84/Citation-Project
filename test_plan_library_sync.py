@@ -99,16 +99,15 @@ def test_manual_personal_entry(client):
     """, (title, composer))
 
     library = get_one("""
-        SELECT * FROM pieces
+        SELECT * FROM personal_library
         WHERE title=?
           AND composer=?
           AND composer_dates=?
-          AND library_only=1
-          AND chosen_by='Michael'
+          AND active=1
     """, (title, composer, dates))
 
     assert_true(scheduled is not None, "Manual personal entry was not saved as scheduled piece.")
-    assert_true(library is not None, "Manual personal entry was not added to personal library.")
+    assert_true(library is not None, "Manual personal entry was not added to personal_library.")
     print("✓ Manual personal entry creates/updates personal library item")
 
 

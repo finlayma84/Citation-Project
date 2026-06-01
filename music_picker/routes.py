@@ -704,9 +704,10 @@ def choir_library_detail(item_id):
         get_db().execute("""
             INSERT INTO pieces (
                 season, calendar_year, date, occasion, slot, performer,
-                chosen_by, title, composer, composer_dates, status, library_only
+                chosen_by, title, composer, composer_dates, status, library_only,
+                source_type, source_id
             )
-            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0, 'choir', ?)
         """, (
             form_season,
             year,
@@ -717,6 +718,7 @@ def choir_library_detail(item_id):
             row['title'],
             row['composer'] or '',
             status,
+            item_id,
         ))
 
         get_db().commit()
@@ -764,9 +766,10 @@ def bell_library_detail(item_id):
         get_db().execute("""
             INSERT INTO pieces (
                 season, calendar_year, date, occasion, slot, performer,
-                chosen_by, title, composer, composer_dates, status, library_only
+                chosen_by, title, composer, composer_dates, status, library_only,
+                source_type, source_id
             )
-            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0, 'bells', ?)
         """, (
             form_season,
             year,
@@ -777,6 +780,7 @@ def bell_library_detail(item_id):
             row['title'],
             row['composer_arranger'] or '',
             status,
+            item_id,
         ))
 
         get_db().commit()
