@@ -408,6 +408,127 @@ def choir_library_new():
     return render_template('choir_library_form.html', row=None, mode='new')
 
 
+
+@bp.route('/libraries/choir/<int:item_id>', methods=['GET', 'POST'])
+def choir_library_detail(item_id):
+    row = get_db().execute("SELECT * FROM choir_library WHERE id=? AND active=1", (item_id,)).fetchone()
+    if not row:
+        abort(404)
+
+    if request.method == 'POST':
+        iso = request.form.get('date', '').strip()
+        slot = request.form.get('slot', '').strip()
+        performer = request.form.get('performer', 'Chancel Choir').strip() or 'Chancel Choir'
+        occasion = request.form.get('occasion', '').strip()
+
+        try:
+            y, m, d = [int(x) for x in iso.split('-')]
+            the_date = date_class(y, m, d)
+        except (ValueError, TypeError):
+            abort(400)
+
+        if slot not in SLOTS:
+            abort(400)
+
+        date_str, year = iso_to_db_parts(iso)
+        today = date_class.today()
+        status = 'scheduled' if (year, m, d) >= (today.year, today.month, today.day) else 'played'
+        form_season = season_for_date(the_date)
+
+        # Replace Michael's existing entry for this date/slot, same behavior as plan page.
+        get_db().execute(
+            "DELETE FROM pieces WHERE calendar_year=? AND date=? AND slot=? AND chosen_by='Michael' AND (library_only=0 OR library_only IS NULL)",
+            (year, date_str, slot),
+        )
+
+        get_db().execute("""
+            INSERT INTO pieces (
+                season, calendar_year, date, occasion, slot, performer,
+                chosen_by, title, composer, composer_dates, status, library_only
+            )
+            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0)
+        """, (
+            form_season,
+            year,
+            date_str,
+            occasion,
+            slot,
+            performer,
+            row['title'],
+            row['composer'] or '',
+            status,
+        ))
+
+        get_db().commit()
+        return redirect(url_for('main.plan', iso=iso))
+
+    return render_template(
+        'choir_library_detail.html',
+        row=row,
+        slot_names=SLOTS,
+        performers=PERFORMERS,
+    )
+
+
+@bp.route('/libraries/bells/<int:item_id>', methods=['GET', 'POST'])
+def bell_library_detail(item_id):
+    row = get_db().execute("SELECT * FROM bell_library WHERE id=? AND active=1", (item_id,)).fetchone()
+    if not row:
+        abort(404)
+
+    if request.method == 'POST':
+        iso = request.form.get('date', '').strip()
+        slot = request.form.get('slot', '').strip()
+        performer = request.form.get('performer', 'Handbells').strip() or 'Handbells'
+        occasion = request.form.get('occasion', '').strip()
+
+        try:
+            y, m, d = [int(x) for x in iso.split('-')]
+            the_date = date_class(y, m, d)
+        except (ValueError, TypeError):
+            abort(400)
+
+        if slot not in SLOTS:
+            abort(400)
+
+        date_str, year = iso_to_db_parts(iso)
+        today = date_class.today()
+        status = 'scheduled' if (year, m, d) >= (today.year, today.month, today.day) else 'played'
+        form_season = season_for_date(the_date)
+
+        get_db().execute(
+            "DELETE FROM pieces WHERE calendar_year=? AND date=? AND slot=? AND chosen_by='Michael' AND (library_only=0 OR library_only IS NULL)",
+            (year, date_str, slot),
+        )
+
+        get_db().execute("""
+            INSERT INTO pieces (
+                season, calendar_year, date, occasion, slot, performer,
+                chosen_by, title, composer, composer_dates, status, library_only
+            )
+            VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, '', ?, 0)
+        """, (
+            form_season,
+            year,
+            date_str,
+            occasion,
+            slot,
+            performer,
+            row['title'],
+            row['composer_arranger'] or '',
+            status,
+        ))
+
+        get_db().commit()
+        return redirect(url_for('main.plan', iso=iso))
+
+    return render_template(
+        'bell_library_detail.html',
+        row=row,
+        slot_names=SLOTS,
+        performers=PERFORMERS,
+    )
+
 @bp.route('/libraries/choir/<int:item_id>/edit', methods=['GET', 'POST'])
 def choir_library_edit(item_id):
     row = get_db().execute("SELECT * FROM choir_library WHERE id=?", (item_id,)).fetchone()

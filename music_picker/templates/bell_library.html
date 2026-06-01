@@ -36,7 +36,7 @@
         <tbody>
           {% for r in rows %}
             <tr class="border-t border-stone-100">
-              <td class="p-3 font-medium">{{ r.title }}</td>
+              <td class="p-3 font-medium"><a class="hover:underline" href="{{ url_for('main.bell_library_detail', item_id=r.id) }}">{{ r.title }}</a></td>
               <td class="p-3">{{ r.composer_arranger }}</td>
               <td class="p-3 text-right">
                 <a class="text-stone-600 hover:text-stone-950" href="{{ url_for('main.bell_library_edit', item_id=r.id) }}">Edit</a>
