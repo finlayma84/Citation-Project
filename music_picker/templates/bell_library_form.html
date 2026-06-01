@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% if mode == 'new' %}Add Bell Piece{% else %}Edit Bell Piece{% endif %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-50 text-stone-900">
+  <main class="max-w-3xl mx-auto p-6">
+    <a href="{{ url_for('main.bell_library') }}" class="text-sm text-stone-500 hover:text-stone-900">← Handbell Library</a>
+    <h1 class="text-3xl font-semibold mt-2 mb-5">{% if mode == 'new' %}Add Bell Piece{% else %}Edit Bell Piece{% endif %}</h1>
+
+    <form method="post" class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Title</label>
+        <input name="title" value="{{ row.title if row else '' }}" required class="w-full rounded-lg border border-stone-300 px-3 py-2">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Composer / Arranger</label>
+        <input name="composer_arranger" value="{{ row.composer_arranger if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+      </div>
+
+      <div class="flex justify-between pt-3">
+        <button class="rounded-lg bg-stone-900 text-white px-4 py-2">Save</button>
+
+        {% if mode == 'edit' %}
+          <button name="delete" value="1" class="rounded-lg border border-red-300 text-red-700 px-4 py-2" onclick="return confirm('Remove this bell piece from the active library?')">Remove</button>
+        {% endif %}
+      </div>
+    </form>
+  </main>
+</body>
+</html>

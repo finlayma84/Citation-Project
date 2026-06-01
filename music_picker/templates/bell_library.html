@@ -7,10 +7,13 @@
 </head>
 <body class="bg-stone-50 text-stone-900">
   <main class="max-w-5xl mx-auto p-6">
-    <div class="mb-5">
-      <a href="{{ url_for('main.libraries') }}" class="text-sm text-stone-500 hover:text-stone-900">← Libraries</a>
-      <h1 class="text-3xl font-semibold mt-2">Handbell Library</h1>
-      <p class="text-stone-600 mt-1">{{ rows|length }} pieces{% if q %} matching “{{ q }}”{% endif %}</p>
+    <div class="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <a href="{{ url_for('main.libraries') }}" class="text-sm text-stone-500 hover:text-stone-900">← Libraries</a>
+        <h1 class="text-3xl font-semibold mt-2">Handbell Library</h1>
+        <p class="text-stone-600 mt-1">{{ rows|length }} pieces{% if q %} matching “{{ q }}”{% endif %}</p>
+      </div>
+      <a href="{{ url_for('main.bell_library_new') }}" class="rounded-lg bg-stone-900 text-white px-4 py-2 text-sm">Add bell piece</a>
     </div>
 
     <form method="get" class="mb-5 flex gap-2">
@@ -27,6 +30,7 @@
           <tr>
             <th class="text-left p-3">Title</th>
             <th class="text-left p-3">Composer / Arranger</th>
+            <th class="text-right p-3">Edit</th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +38,9 @@
             <tr class="border-t border-stone-100">
               <td class="p-3 font-medium">{{ r.title }}</td>
               <td class="p-3">{{ r.composer_arranger }}</td>
+              <td class="p-3 text-right">
+                <a class="text-stone-600 hover:text-stone-950" href="{{ url_for('main.bell_library_edit', item_id=r.id) }}">Edit</a>
+              </td>
             </tr>
           {% endfor %}
         </tbody>

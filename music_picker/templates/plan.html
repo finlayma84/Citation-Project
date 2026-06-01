@@ -229,6 +229,12 @@
     <aside class="lg:col-span-2">
       <div class="lg:sticky lg:top-4 card p-4">
         <form id="sidebar-form" method="get" class="mb-3 space-y-2">
+          <input type="hidden" name="library" value="{{ sidebar_library or 'personal' }}">
+          <div id="sidebar-library-tabs" class="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1">
+            <button type="button" data-library-tab="personal" class="library-tab rounded-lg px-2 py-1 text-xs {% if sidebar_library == 'personal' %}bg-white shadow-sm font-semibold{% endif %}">Personal</button>
+            <button type="button" data-library-tab="choir" class="library-tab rounded-lg px-2 py-1 text-xs {% if sidebar_library == 'choir' %}bg-white shadow-sm font-semibold{% endif %}">Choir</button>
+            <button type="button" data-library-tab="bells" class="library-tab rounded-lg px-2 py-1 text-xs {% if sidebar_library == 'bells' %}bg-white shadow-sm font-semibold{% endif %}">Bells</button>
+          </div>
           <div>
             <label class="label-tiny block mb-1">Search past pieces</label>
             <input type="text" name="q" value="{{ search_q or '' }}" placeholder="Title, composer, year…" class="text-sm w-full">
@@ -256,38 +262,95 @@
           </div>
         </form>
         <p id="sidebar-count" class="text-xs text-stone-500 mb-3">
-          {{ past_total }} unique
-          {% if search_q %} · matching "{{ search_q }}"{% endif %}
-          {% if filter_season %} · Season: {{ filter_season }}{% else %} · All seasons{% endif %}
-          {% if filter_slot %} · Slot: {{ filter_slot }}{% endif %}
-          · longest since last played first
+          {% if sidebar_library == 'choir' %}
+            {{ choir_total }} choir pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}
+          {% elif sidebar_library == 'bells' %}
+            {{ bell_total }} bell pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}
+          {% else %}
+            {{ past_total }} unique
+            {% if search_q %} · matching "{{ search_q }}"{% endif %}
+            {% if filter_season %} · Season: {{ filter_season }}{% else %} · All seasons{% endif %}
+            {% if filter_slot %} · Slot: {{ filter_slot }}{% endif %}
+            · longest since last played first
+          {% endif %}
         </p>
         <div id="past-list" class="space-y-1 max-h-[70vh] overflow-y-auto pr-1">
-          {% for p in past_pieces %}
-          <div class="text-sm border border-stone-200 rounded p-2 group" style="background: #fff;" data-title="{{ p.title }}" data-composer="{{ p.composer }}" data-dates="{{ p.composer_dates }}">
-            <div class="font-medium text-stone-900">
-              {{ p.title }}
-              {% if p.library %}<span class="ml-1 badge-library">lib</span>{% endif %}
+          {% if sidebar_library == 'choir' %}
+            {% for p in choir_rows %}
+            <div class="text-sm border border-stone-200 rounded p-2 group bg-white"
+                 data-title="{{ p.title }}"
+                 data-composer="{{ p.composer }}"
+                 data-dates=""
+                 data-ensemble="Chancel Choir">
+              <div class="font-medium text-stone-900">{{ p.title }}</div>
+              <div class="text-xs text-stone-500 mt-0.5">
+                {{ p.composer or '—' }}
+                {% if p.voicing %} · {{ p.voicing }}{% endif %}
+                {% if p.season %} · {{ p.season }}{% endif %}
+              </div>
+              <div class="text-xs text-stone-400">
+                {% if p.style %}{{ p.style }}{% endif %}
+                {% if p.copies %} · Copies: {{ p.copies }}{% endif %}
+              </div>
+              <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
+                {% for slot in slot_names %}
+                  <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
+                {% endfor %}
+              </div>
             </div>
-            <div class="text-xs text-stone-500 mt-0.5">
-  {{ p.composer or '—' }}{% if p.composer_dates %} ({{ p.composer_dates }}){% endif %}
-  · {% if p.library %}<span class="italic">never played</span>
-    {% elif p.scheduled_only %}<span class="italic" style="color: var(--accent-action);">scheduled for {{ p.next_scheduled_str }}</span>
-    {% else %}last {{ p.last_played_str or 'unknown' }} · {{ p.times }}×
-      {% if p.next_scheduled_str %} · <span style="color: var(--accent-action);">next: {{ p.next_scheduled_str }}</span>{% endif %}
-    {% endif %}
-</div>
-            <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
-              {% for slot in slot_names %}
-                <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
-              {% endfor %}
+            {% endfor %}
+            {% if not choir_rows %}<p class="text-sm text-stone-400 text-center py-6">No choir matches.</p>{% endif %}
+
+          {% elif sidebar_library == 'bells' %}
+            {% for p in bell_rows %}
+            <div class="text-sm border border-stone-200 rounded p-2 group bg-white"
+                 data-title="{{ p.title }}"
+                 data-composer="{{ p.composer_arranger }}"
+                 data-dates=""
+                 data-ensemble="Handbells">
+              <div class="font-medium text-stone-900">{{ p.title }}</div>
+              <div class="text-xs text-stone-500 mt-0.5">{{ p.composer_arranger or '—' }}</div>
+              <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
+                {% for slot in slot_names %}
+                  <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
+                {% endfor %}
+              </div>
             </div>
-          </div>
-          {% endfor %}
-          {% if not past_pieces %}<p class="text-sm text-stone-400 text-center py-6">No matches.</p>{% endif %}
-          {% if past_truncated %}
-          <div id="show-all-wrap" class="pt-2"><button type="button" id="show-all-btn" class="text-sm text-amber-700 hover:text-amber-900 underline">Show all {{ past_total }} ↓</button></div>
+            {% endfor %}
+            {% if not bell_rows %}<p class="text-sm text-stone-400 text-center py-6">No bell matches.</p>{% endif %}
+
+          {% else %}
+            {% for p in past_pieces %}
+            <div class="text-sm border border-stone-200 rounded p-2 group" style="background: #fff;"
+                 data-title="{{ p.title }}"
+                 data-composer="{{ p.composer }}"
+                 data-dates="{{ p.composer_dates }}"
+                 data-ensemble="Michael">
+              <div class="font-medium text-stone-900">
+                {{ p.title }}
+                {% if p.library %}<span class="ml-1 badge-library">lib</span>{% endif %}
+              </div>
+              <div class="text-xs text-stone-500 mt-0.5">
+                {{ p.composer or '—' }}{% if p.composer_dates %} ({{ p.composer_dates }}){% endif %}
+                · {% if p.library %}<span class="italic">never played</span>
+                  {% elif p.scheduled_only %}<span class="italic" style="color: var(--accent-action);">scheduled for {{ p.next_scheduled_str }}</span>
+                  {% else %}last {{ p.last_played_str or 'unknown' }} · {{ p.times }}×
+                    {% if p.next_scheduled_str %} · <span style="color: var(--accent-action);">next: {{ p.next_scheduled_str }}</span>{% endif %}
+                  {% endif %}
+              </div>
+              <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
+                {% for slot in slot_names %}
+                  <button type="button" class="fill-btn text-xs px-2 py-0.5 rounded border border-stone-300 hover:border-amber-400 hover:text-amber-800" data-target="{{ slot }}">→ {{ slot }}</button>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+            {% if not past_pieces %}<p class="text-sm text-stone-400 text-center py-6">No matches.</p>{% endif %}
+            {% if past_truncated %}
+            <div id="show-all-wrap" class="pt-2"><button type="button" id="show-all-btn" class="text-sm text-amber-700 hover:text-amber-900 underline">Show all {{ past_total }} ↓</button></div>
+            {% endif %}
           {% endif %}
+        </div>
         </div>
       </div>
     </aside>
@@ -303,6 +366,10 @@ function wireUp() {
       document.getElementById('title_' + slot).value = card.dataset.title;
       document.getElementById('composer_' + slot).value = card.dataset.composer;
       document.getElementById('composer_dates_' + slot).value = card.dataset.dates;
+      const performerEl = document.getElementById('performer_' + slot);
+      if (performerEl && card.dataset.ensemble) {
+        performerEl.value = card.dataset.ensemble;
+      }
       const titleEl = document.getElementById('title_' + slot);
       titleEl.style.outline = '2px solid var(--accent-action)';
       setTimeout(() => titleEl.style.outline = '', 600);
@@ -362,6 +429,7 @@ function wireSidebarForm() {
   if (!form) return;
 
   const getSidebarParams = () => ({
+    library: form.querySelector('[name=library]')?.value || 'personal',
     q: form.querySelector('[name=q]')?.value || '',
     filter_season: form.querySelector('[name=filter_season]')?.value || '',
     filter_slot: form.querySelector('[name=filter_slot]')?.value || ''
@@ -381,6 +449,14 @@ function wireSidebarForm() {
   if (slotSel) {
     slotSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
   }
+
+  document.querySelectorAll('[data-library-tab]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      form.querySelector('[name=library]').value = tab.dataset.libraryTab;
+      form.querySelector('[name=q]').value = '';
+      refreshSidebar(getSidebarParams());
+    });
+  });
 
   const clearBtn = document.getElementById('sidebar-clear');
   if (clearBtn) {

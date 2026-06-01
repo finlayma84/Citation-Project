@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% if mode == 'new' %}Add Choir Piece{% else %}Edit Choir Piece{% endif %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-50 text-stone-900">
+  <main class="max-w-4xl mx-auto p-6">
+    <a href="{{ url_for('main.choir_library') }}" class="text-sm text-stone-500 hover:text-stone-900">← Choir Library</a>
+    <h1 class="text-3xl font-semibold mt-2 mb-5">{% if mode == 'new' %}Add Choir Piece{% else %}Edit Choir Piece{% endif %}</h1>
+
+    <form method="post" class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Title</label>
+        <input name="title" value="{{ row.title if row else '' }}" required class="w-full rounded-lg border border-stone-300 px-3 py-2">
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Voicing</label>
+          <input name="voicing" value="{{ row.voicing if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Difficulty</label>
+          <input name="difficulty" value="{{ row.difficulty if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Season</label>
+          <input name="season" value="{{ row.season if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Style</label>
+          <input name="style" value="{{ row.style if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Copies</label>
+          <input name="copies" value="{{ row.copies if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Year</label>
+          <input name="year" value="{{ row.year if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Purchased / Last used</label>
+          <input name="purchased" value="{{ row.purchased if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Composer / Arranger</label>
+          <input name="composer" value="{{ row.composer if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Publisher</label>
+          <input name="publisher" value="{{ row.publisher if row else '' }}" class="w-full rounded-lg border border-stone-300 px-3 py-2">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Instrumentation / Notes</label>
+        <textarea name="instrumentation" rows="2" class="w-full rounded-lg border border-stone-300 px-3 py-2">{{ row.instrumentation if row else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Scripture</label>
+        <textarea name="scripture" rows="2" class="w-full rounded-lg border border-stone-300 px-3 py-2">{{ row.scripture if row else '' }}</textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Choice / Misc.</label>
+        <textarea name="choice" rows="2" class="w-full rounded-lg border border-stone-300 px-3 py-2">{{ row.choice if row else '' }}</textarea>
+      </div>
+
+      <div class="flex justify-between pt-3">
+        <button class="rounded-lg bg-stone-900 text-white px-4 py-2">Save</button>
+
+        {% if mode == 'edit' %}
+          <button name="delete" value="1" class="rounded-lg border border-red-300 text-red-700 px-4 py-2" onclick="return confirm('Remove this choir piece from the active library?')">Remove</button>
+        {% endif %}
+      </div>
+    </form>
+  </main>
+</body>
+</html>

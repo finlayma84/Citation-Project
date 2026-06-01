@@ -188,25 +188,307 @@ def plan(iso):
     else:
         filter_season = filter_season_raw
     filter_slot = request.args.get('filter_slot', '')
+    sidebar_library = request.args.get('library', 'personal')
+    if sidebar_library not in ('personal', 'choir', 'bells'):
+        sidebar_library = 'personal'
+
     search_q = request.args.get('q', '').strip()
     show_all = request.args.get('all_past') == '1'
     limit = None if show_all else 25
+
     past_pieces, past_total = get_past_pieces_for_season(
         filter_season if filter_season else None,
         search_q=search_q,
         limit=limit,
         slot=filter_slot,
     )
+
+    choir_rows = []
+    bell_rows = []
+    choir_total = 0
+    bell_total = 0
+
+    if sidebar_library == 'choir':
+        if search_q:
+            like = f"%{search_q}%"
+            choir_rows = get_db().execute("""
+                SELECT * FROM choir_library
+                WHERE active=1 AND (
+                    title LIKE ?
+                    OR composer LIKE ?
+                    OR voicing LIKE ?
+                    OR season LIKE ?
+                    OR style LIKE ?
+                    OR publisher LIKE ?
+                    OR instrumentation LIKE ?
+                    OR scripture LIKE ?
+                    OR choice LIKE ?
+                )
+                ORDER BY title COLLATE NOCASE
+                LIMIT 100
+            """, (like, like, like, like, like, like, like, like, like)).fetchall()
+        else:
+            choir_rows = get_db().execute("""
+                SELECT * FROM choir_library
+                WHERE active=1
+                ORDER BY title COLLATE NOCASE
+                LIMIT 100
+            """).fetchall()
+        choir_total = len(choir_rows)
+
+    if sidebar_library == 'bells':
+        if search_q:
+            like = f"%{search_q}%"
+            bell_rows = get_db().execute("""
+                SELECT * FROM bell_library
+                WHERE active=1 AND (
+                    title LIKE ?
+                    OR composer_arranger LIKE ?
+                )
+                ORDER BY title COLLATE NOCASE
+                LIMIT 100
+            """, (like, like)).fetchall()
+        else:
+            bell_rows = get_db().execute("""
+                SELECT * FROM bell_library
+                WHERE active=1
+                ORDER BY title COLLATE NOCASE
+                LIMIT 100
+            """).fetchall()
+        bell_total = len(bell_rows)
+
     past_truncated = (not show_all) and past_total > 25
     liturgical = liturgical_name(the_date)
     sunday_theme = get_theme_for_date(the_date, liturgical_name=liturgical, season=form_season)
     return render_template('plan.html', iso=iso, display_date=the_date.strftime('%A, %B %-d, %Y'),
         slot_data=slot_data, slot_names=SLOTS, hymns=hymns, occasion=occasion, form_season=form_season,
         seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season,
-        filter_slot=filter_slot, search_q=search_q,
+        filter_slot=filter_slot, sidebar_library=sidebar_library, search_q=search_q,
         past_pieces=past_pieces, past_total=past_total, past_truncated=past_truncated,
+        choir_rows=choir_rows, choir_total=choir_total,
+        bell_rows=bell_rows, bell_total=bell_total,
         season_palette=season_palette, liturgical=liturgical, sunday_theme=sunday_theme)
 
+
+
+@bp.route('/libraries')
+def libraries():
+    choir_count = get_db().execute("SELECT COUNT(*) FROM choir_library WHERE active=1").fetchone()[0]
+    bell_count = get_db().execute("SELECT COUNT(*) FROM bell_library WHERE active=1").fetchone()[0]
+    return render_template('libraries.html', choir_count=choir_count, bell_count=bell_count)
+
+
+@bp.route('/libraries/choir')
+def choir_library():
+    q = request.args.get('q', '').strip()
+    season = request.args.get('season', '').strip()
+    voicing = request.args.get('voicing', '').strip()
+    style = request.args.get('style', '').strip()
+    difficulty = request.args.get('difficulty', '').strip()
+
+    where = ["active=1"]
+    params = []
+
+    if q:
+        like = f"%{q}%"
+        where.append("""(
+            title LIKE ?
+            OR composer LIKE ?
+            OR publisher LIKE ?
+            OR instrumentation LIKE ?
+            OR scripture LIKE ?
+            OR choice LIKE ?
+        )""")
+        params.extend([like, like, like, like, like, like])
+
+    if season:
+        where.append("season = ?")
+        params.append(season)
+
+    if voicing:
+        where.append("voicing = ?")
+        params.append(voicing)
+
+    if style:
+        where.append("style = ?")
+        params.append(style)
+
+    if difficulty:
+        where.append("difficulty = ?")
+        params.append(difficulty)
+
+    sql = f"""
+        SELECT * FROM choir_library
+        WHERE {' AND '.join(where)}
+        ORDER BY title COLLATE NOCASE
+    """
+    rows = get_db().execute(sql, params).fetchall()
+
+    seasons = [r[0] for r in get_db().execute(
+        "SELECT DISTINCT season FROM choir_library WHERE active=1 AND season IS NOT NULL AND season != '' ORDER BY season COLLATE NOCASE"
+    ).fetchall()]
+    voicings = [r[0] for r in get_db().execute(
+        "SELECT DISTINCT voicing FROM choir_library WHERE active=1 AND voicing IS NOT NULL AND voicing != '' ORDER BY voicing COLLATE NOCASE"
+    ).fetchall()]
+    styles = [r[0] for r in get_db().execute(
+        "SELECT DISTINCT style FROM choir_library WHERE active=1 AND style IS NOT NULL AND style != '' ORDER BY style COLLATE NOCASE"
+    ).fetchall()]
+    difficulties = [r[0] for r in get_db().execute(
+        "SELECT DISTINCT difficulty FROM choir_library WHERE active=1 AND difficulty IS NOT NULL AND difficulty != '' ORDER BY difficulty COLLATE NOCASE"
+    ).fetchall()]
+
+    return render_template(
+        'choir_library.html',
+        rows=rows,
+        q=q,
+        season=season,
+        voicing=voicing,
+        style=style,
+        difficulty=difficulty,
+        seasons=seasons,
+        voicings=voicings,
+        styles=styles,
+        difficulties=difficulties,
+    )
+
+
+@bp.route('/libraries/choir/new', methods=['GET', 'POST'])
+def choir_library_new():
+    if request.method == 'POST':
+        get_db().execute("""
+            INSERT INTO choir_library (
+                title, voicing, difficulty, season, style, copies,
+                composer, publisher, year, purchased, instrumentation,
+                scripture, choice, active
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        """, (
+            request.form.get('title', '').strip(),
+            request.form.get('voicing', '').strip(),
+            request.form.get('difficulty', '').strip(),
+            request.form.get('season', '').strip(),
+            request.form.get('style', '').strip(),
+            request.form.get('copies', '').strip(),
+            request.form.get('composer', '').strip(),
+            request.form.get('publisher', '').strip(),
+            request.form.get('year', '').strip(),
+            request.form.get('purchased', '').strip(),
+            request.form.get('instrumentation', '').strip(),
+            request.form.get('scripture', '').strip(),
+            request.form.get('choice', '').strip(),
+        ))
+        get_db().commit()
+        return redirect(url_for('main.choir_library'))
+
+    return render_template('choir_library_form.html', row=None, mode='new')
+
+
+@bp.route('/libraries/choir/<int:item_id>/edit', methods=['GET', 'POST'])
+def choir_library_edit(item_id):
+    row = get_db().execute("SELECT * FROM choir_library WHERE id=?", (item_id,)).fetchone()
+    if not row:
+        abort(404)
+
+    if request.method == 'POST':
+        if request.form.get('delete') == '1':
+            get_db().execute("UPDATE choir_library SET active=0 WHERE id=?", (item_id,))
+            get_db().commit()
+            return redirect(url_for('main.choir_library'))
+
+        get_db().execute("""
+            UPDATE choir_library
+            SET title=?, voicing=?, difficulty=?, season=?, style=?, copies=?,
+                composer=?, publisher=?, year=?, purchased=?, instrumentation=?,
+                scripture=?, choice=?
+            WHERE id=?
+        """, (
+            request.form.get('title', '').strip(),
+            request.form.get('voicing', '').strip(),
+            request.form.get('difficulty', '').strip(),
+            request.form.get('season', '').strip(),
+            request.form.get('style', '').strip(),
+            request.form.get('copies', '').strip(),
+            request.form.get('composer', '').strip(),
+            request.form.get('publisher', '').strip(),
+            request.form.get('year', '').strip(),
+            request.form.get('purchased', '').strip(),
+            request.form.get('instrumentation', '').strip(),
+            request.form.get('scripture', '').strip(),
+            request.form.get('choice', '').strip(),
+            item_id,
+        ))
+        get_db().commit()
+        return redirect(url_for('main.choir_library'))
+
+    return render_template('choir_library_form.html', row=row, mode='edit')
+
+
+@bp.route('/libraries/bells')
+def bell_library():
+    q = request.args.get('q', '').strip()
+    db = get_db()
+
+    if q:
+        like = f"%{q}%"
+        rows = db.execute("""
+            SELECT * FROM bell_library
+            WHERE active=1 AND (
+                title LIKE ?
+                OR composer_arranger LIKE ?
+            )
+            ORDER BY title COLLATE NOCASE
+        """, (like, like)).fetchall()
+    else:
+        rows = db.execute("""
+            SELECT * FROM bell_library
+            WHERE active=1
+            ORDER BY title COLLATE NOCASE
+        """).fetchall()
+
+    return render_template('bell_library.html', rows=rows, q=q)
+
+
+@bp.route('/libraries/bells/new', methods=['GET', 'POST'])
+def bell_library_new():
+    if request.method == 'POST':
+        get_db().execute("""
+            INSERT INTO bell_library (title, composer_arranger, active)
+            VALUES (?, ?, 1)
+        """, (
+            request.form.get('title', '').strip(),
+            request.form.get('composer_arranger', '').strip(),
+        ))
+        get_db().commit()
+        return redirect(url_for('main.bell_library'))
+
+    return render_template('bell_library_form.html', row=None, mode='new')
+
+
+@bp.route('/libraries/bells/<int:item_id>/edit', methods=['GET', 'POST'])
+def bell_library_edit(item_id):
+    row = get_db().execute("SELECT * FROM bell_library WHERE id=?", (item_id,)).fetchone()
+    if not row:
+        abort(404)
+
+    if request.method == 'POST':
+        if request.form.get('delete') == '1':
+            get_db().execute("UPDATE bell_library SET active=0 WHERE id=?", (item_id,))
+            get_db().commit()
+            return redirect(url_for('main.bell_library'))
+
+        get_db().execute("""
+            UPDATE bell_library
+            SET title=?, composer_arranger=?
+            WHERE id=?
+        """, (
+            request.form.get('title', '').strip(),
+            request.form.get('composer_arranger', '').strip(),
+            item_id,
+        ))
+        get_db().commit()
+        return redirect(url_for('main.bell_library'))
+
+    return render_template('bell_library_form.html', row=row, mode='edit')
 
 @bp.route('/piece/<path:title>')
 def piece_detail(title):
@@ -279,63 +561,3 @@ def delete_title():
     return redirect(url_for('main.index', deleted='1'))
 
 
-@bp.route('/libraries')
-def libraries():
-    return render_template('libraries.html')
-
-
-@bp.route('/libraries/choir')
-def choir_library():
-    q = request.args.get('q', '').strip()
-    db = get_db()
-
-    if q:
-        like = f"%{q}%"
-        rows = db.execute("""
-            SELECT * FROM choir_library
-            WHERE active=1 AND (
-                title LIKE ?
-                OR composer LIKE ?
-                OR voicing LIKE ?
-                OR season LIKE ?
-                OR style LIKE ?
-                OR publisher LIKE ?
-                OR instrumentation LIKE ?
-                OR scripture LIKE ?
-                OR choice LIKE ?
-            )
-            ORDER BY title COLLATE NOCASE
-        """, (like, like, like, like, like, like, like, like, like)).fetchall()
-    else:
-        rows = db.execute("""
-            SELECT * FROM choir_library
-            WHERE active=1
-            ORDER BY title COLLATE NOCASE
-        """).fetchall()
-
-    return render_template('choir_library.html', rows=rows, q=q)
-
-
-@bp.route('/libraries/bells')
-def bell_library():
-    q = request.args.get('q', '').strip()
-    db = get_db()
-
-    if q:
-        like = f"%{q}%"
-        rows = db.execute("""
-            SELECT * FROM bell_library
-            WHERE active=1 AND (
-                title LIKE ?
-                OR composer_arranger LIKE ?
-            )
-            ORDER BY title COLLATE NOCASE
-        """, (like, like)).fetchall()
-    else:
-        rows = db.execute("""
-            SELECT * FROM bell_library
-            WHERE active=1
-            ORDER BY title COLLATE NOCASE
-        """).fetchall()
-
-    return render_template('bell_library.html', rows=rows, q=q)
