@@ -1,5 +1,6 @@
 import unicodedata
 from datetime import date as date_class
+import re
 
 from .calendar_utils import format_last_played, to_sortable_date
 from .constants import MONTHS_REV, SLOTS
@@ -18,18 +19,50 @@ def _fold(s):
         return ''
     decomposed = unicodedata.normalize('NFKD', s)
     return ''.join(c for c in decomposed if not unicodedata.combining(c)).lower()
-def matches_search(row_dict, search_term):
-    if not search_term:
+
+def normalize_search_text(value):
+    """Normalize text for forgiving search.
+
+    Examples:
+    - Angels' Carol -> angels carol
+    - Come, O Long-expected Jesus -> come o long expected jesus
+    - Noël -> noel
+    """
+    value = value or ""
+    value = unicodedata.normalize("NFKD", str(value))
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+    value = value.lower()
+    value = value.replace("’", "'").replace("‘", "'")
+    value = value.replace("“", '"').replace("”", '"')
+    value = re.sub(r"[^a-z0-9]+", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def normalized_contains(haystack, needle):
+    needle_norm = normalize_search_text(needle)
+    if not needle_norm:
         return True
-    needle = _fold(search_term)
+    return needle_norm in normalize_search_text(haystack)
+
+
+def matches_search(row, search_q):
+    """Forgiving search across common repertoire fields."""
+    search_q = search_q or ""
+    if not search_q.strip():
+        return True
+
     fields = [
-        row_dict.get('title', '') or '',
-        row_dict.get('composer', '') or '',
-        row_dict.get('composer_dates', '') or '',
-        row_dict.get('occasion', '') or '',
-        row_dict.get('source_file', '') or '',
+        row.get("title", ""),
+        row.get("composer", ""),
+        row.get("composer_dates", ""),
+        row.get("occasion", ""),
+        row.get("season", ""),
+        row.get("source_file", ""),
+        row.get("notes", ""),
+        row.get("hymn_no", ""),
     ]
-    return any(needle in _fold(f) for f in fields)
+
+    return normalized_contains(" ".join(str(f or "") for f in fields), search_q)
 
 
 def get_sunday_summary(d):
@@ -79,7 +112,6 @@ def get_repertoire_results(search_q='', season='', slot='', limit=None):
         library_rows = [r for r in library_rows if (r.get('season') or '') == season]
 
     if search_q:
-        q = search_q.lower()
         def lib_matches(r):
             haystack = " ".join([
                 r.get('title') or '',
@@ -88,8 +120,8 @@ def get_repertoire_results(search_q='', season='', slot='', limit=None):
                 r.get('season') or '',
                 r.get('source_file') or '',
                 r.get('notes') or '',
-            ]).lower()
-            return q in haystack
+            ])
+            return normalized_contains(haystack, search_q)
 
         library_rows = [r for r in library_rows if lib_matches(r)]
 
