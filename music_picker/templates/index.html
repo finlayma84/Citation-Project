@@ -148,7 +148,193 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
-  </style>
+  
+/* Responsive calendar table fix */
+.calendar-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-table {
+  min-width: 1120px;
+  table-layout: fixed;
+}
+
+.calendar-table th,
+.calendar-table td {
+  vertical-align: middle;
+}
+
+.calendar-table .sunday-cell {
+  min-width: 360px;
+}
+
+.calendar-table .music-cell {
+  min-width: 160px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 900px) {
+  .calendar-table {
+    min-width: 980px;
+  }
+
+  .calendar-table .sunday-cell {
+    min-width: 300px;
+  }
+
+  .calendar-table .music-cell {
+    min-width: 145px;
+  }
+}
+
+
+/* Calendar table: keep scroll as fallback, but constrain Sunday column */
+.calendar-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-table {
+  width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+/* Sunday column: do not allow long descriptions to push table layout */
+.calendar-table th:first-child,
+.calendar-table td:first-child {
+  width: 38%;
+  max-width: 420px;
+}
+
+/* Music columns share remaining space */
+.calendar-table th:not(:first-child),
+.calendar-table td:not(:first-child) {
+  width: 15.5%;
+}
+
+/* Text wrapping generally */
+.calendar-table td,
+.calendar-table th {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  vertical-align: middle;
+}
+
+/* Sunday metadata line: wrap cleanly but don't create a giant one-line column */
+.calendar-table td:first-child {
+  overflow: hidden;
+}
+
+.calendar-table td:first-child .sunday-meta,
+.calendar-table td:first-child .sunday-description,
+.calendar-table td:first-child .theme-context {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* If a line is still too long, clamp the Sunday details to two lines */
+.calendar-table td:first-child .sunday-details {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* On smaller screens, preserve horizontal scroll */
+@media (max-width: 760px) {
+  .calendar-table {
+    min-width: 900px;
+  }
+
+  .calendar-table th:first-child,
+  .calendar-table td:first-child {
+    width: 36%;
+    max-width: 360px;
+  }
+}
+
+
+/* Final calendar width behavior:
+   keep horizontal scroll as fallback, but stop Sunday text from widening table */
+.calendar-scroll {
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-table {
+  width: 100% !important;
+  min-width: 1040px !important;
+  table-layout: fixed !important;
+}
+
+/* Force the first/Sunday column to stay reasonably narrow */
+.calendar-table th:first-child,
+.calendar-table td:first-child,
+.calendar-table .sunday-cell {
+  width: 360px !important;
+  min-width: 320px !important;
+  max-width: 380px !important;
+}
+
+/* Let music columns use predictable space */
+.calendar-table th:not(:first-child),
+.calendar-table td:not(:first-child),
+.calendar-table .music-cell {
+  width: 170px !important;
+  min-width: 150px !important;
+  max-width: 190px !important;
+}
+
+/* Wrap music titles instead of clipping */
+.calendar-table td,
+.calendar-table th {
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  vertical-align: middle;
+}
+
+/* The Sunday detail/context line should not be allowed to become a giant one-line row */
+.calendar-table td:first-child .sunday-details {
+  display: -webkit-box !important;
+  max-width: 42ch !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  overflow-wrap: break-word !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.35;
+}
+
+/* On very small screens, keep the same logic but allow scrolling */
+@media (max-width: 760px) {
+  .calendar-table {
+    min-width: 960px !important;
+  }
+
+  .calendar-table th:first-child,
+  .calendar-table td:first-child,
+  .calendar-table .sunday-cell {
+    width: 320px !important;
+    min-width: 300px !important;
+    max-width: 340px !important;
+  }
+
+  .calendar-table td:first-child .sunday-details {
+    max-width: 36ch !important;
+  }
+}
+
+</style>
 </head>
 
 <body>
@@ -189,42 +375,108 @@
         <a href="/?month={{ next_month_iso }}" class="btn-secondary text-sm" title="Next month">Next → </a>
       </div>
     </div>
-    <div class="card overflow-hidden">
-      <table class="w-full text-sm">
-        <thead><tr><th class="text-left px-4 py-2">Sunday</th><th class="text-left px-4 py-2">Prelude</th><th class="text-left px-4 py-2">Min Music</th><th class="text-left px-4 py-2">Offering</th><th class="text-left px-4 py-2">Postlude</th></tr></thead>
-        <tbody>
-          {% for s in sundays %}
-          {% set p = season_palette(s.season) %}
-          <tr class="cursor-pointer{% if s.is_past %} opacity-60{% endif %}"
-              style="border-left: 4px solid {{ p.accent }};"
-              onclick="window.location='/plan/{{ s.iso }}'">
-            <td class="px-4 py-3 whitespace-nowrap font-medium">
-              <a href="/plan/{{ s.iso }}" class="link {% if s.is_today %}font-semibold{% endif %}" {% if s.is_today %}style="color: {{ p.accent }};"{% endif %}>
-                {{ s.display }}{% if s.is_today %} · today{% endif %}
-              </a>
-              <div class="text-xs mt-0.5" style="color: {{ p.accent }};">
-                {{ p.label }}{% if s.liturgical %} · {{ s.liturgical }}{% endif %}
-                {% if s.theme_context and s.theme_context.theme %}
-                  · <span class="text-stone-500">{{ s.theme_context.theme }}</span>
-                {% elif s.occasion %}
-                  · <span class="text-stone-500">{{ s.occasion }}</span>
-                {% elif s.theme_context and s.theme_context.planning_note %}
-                  · <span class="text-stone-500">{{ s.theme_context.planning_note }}</span>
-                {% endif %}
-              </div>
-            </td>
-            {% for slot in ['Prelude', 'Min Music', 'Offering', 'Postlude'] %}
-              <td class="px-4 py-3 text-stone-700">
-                {% if s.pieces[slot] %}{{ s.pieces[slot] }}{% else %}<span class="text-stone-300">—</span>{% endif %}
+    <!-- Desktop/tablet calendar table -->
+    <div class="card overflow-hidden hidden md:block">
+      <div class="overflow-x-auto -mx-1 px-1">
+        <table class="w-full min-w-[920px] table-fixed text-sm">
+          <colgroup>
+            <col class="w-[36%]">
+            <col class="w-[16%]">
+            <col class="w-[16%]">
+            <col class="w-[16%]">
+            <col class="w-[16%]">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="text-left px-4 py-2 w-[36%]">Sunday</th>
+              <th class="text-left px-4 py-2 w-[16%]">Prelude</th>
+              <th class="text-left px-4 py-2 w-[16%]">Min Music</th>
+              <th class="text-left px-4 py-2 w-[16%]">Offering</th>
+              <th class="text-left px-4 py-2 w-[16%]">Postlude</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in sundays %}
+            {% set p = season_palette(s.season) %}
+            <tr class="cursor-pointer{% if s.is_past %} opacity-60{% endif %}"
+                style="border-left: 4px solid {{ p.accent }};"
+                onclick="window.location='/plan/{{ s.iso }}'">
+              <td class="px-4 py-3 font-medium align-middle whitespace-normal break-words">
+                <a href="/plan/{{ s.iso }}" class="link {% if s.is_today %}font-semibold{% endif %}" {% if s.is_today %}style="color: {{ p.accent }};"{% endif %}>
+                  {{ s.display }}{% if s.is_today %} · today{% endif %}
+                </a>
+                <div class="text-xs mt-0.5 max-w-[34ch] whitespace-normal break-words leading-snug overflow-hidden" style="color: {{ p.accent }};">
+                  {{ p.label }}{% if s.liturgical %} · {{ s.liturgical }}{% endif %}
+                  {% if s.theme_context and s.theme_context.theme %}
+                    · <span class="text-stone-500">{{ s.theme_context.theme }}</span>
+                  {% elif s.occasion %}
+                    · <span class="text-stone-500">{{ s.occasion }}</span>
+                  {% elif s.theme_context and s.theme_context.planning_note %}
+                    · <span class="text-stone-500">{{ s.theme_context.planning_note }}</span>
+                  {% endif %}
+                </div>
               </td>
+              {% for slot in ['Prelude', 'Min Music', 'Offering', 'Postlude'] %}
+                <td class="px-4 py-3 text-stone-700 align-middle whitespace-normal break-words">
+                  {% if s.pieces[slot] %}{{ s.pieces[slot] }}{% else %}<span class="text-stone-300">—</span>{% endif %}
+                </td>
+              {% endfor %}
+            </tr>
             {% endfor %}
-          </tr>
+            {% if not sundays %}
+            <tr><td colspan="5" class="px-4 py-6 text-center text-stone-400 text-sm">No Sundays in this month.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile Sunday cards -->
+    <div class="md:hidden space-y-3">
+      {% for s in sundays %}
+      {% set p = season_palette(s.season) %}
+      <a href="/plan/{{ s.iso }}"
+         class="block card p-4{% if s.is_past %} opacity-60{% endif %}"
+         style="border-left: 4px solid {{ p.accent }};">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="font-semibold {% if s.is_today %}text-amber-800{% endif %}">
+              {{ s.display }}{% if s.is_today %} · today{% endif %}
+            </div>
+            <div class="text-xs mt-1 leading-snug" style="color: {{ p.accent }};">
+              {{ p.label }}{% if s.liturgical %} · {{ s.liturgical }}{% endif %}
+              {% if s.theme_context and s.theme_context.theme %}
+                · <span class="text-stone-500">{{ s.theme_context.theme }}</span>
+              {% elif s.occasion %}
+                · <span class="text-stone-500">{{ s.occasion }}</span>
+              {% elif s.theme_context and s.theme_context.planning_note %}
+                · <span class="text-stone-500">{{ s.theme_context.planning_note }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="text-xs text-stone-400 pt-1">Edit →</div>
+        </div>
+
+        <div class="mt-3 divide-y divide-stone-100">
+          {% for slot in ['Prelude', 'Min Music', 'Offering', 'Postlude'] %}
+          <div class="py-2">
+            <div class="text-[0.65rem] uppercase tracking-wide text-stone-400 font-semibold">{{ slot }}</div>
+            <div class="text-sm text-stone-800 mt-0.5">
+              {% if s.pieces[slot] %}
+                {{ s.pieces[slot] }}
+              {% else %}
+                <span class="text-stone-300">—</span>
+              {% endif %}
+            </div>
+          </div>
           {% endfor %}
-          {% if not sundays %}
-          <tr><td colspan="5" class="px-4 py-6 text-center text-stone-400 text-sm">No Sundays in this month.</td></tr>
-          {% endif %}
-        </tbody>
-      </table>
+        </div>
+      </a>
+      {% endfor %}
+
+      {% if not sundays %}
+      <div class="card p-6 text-center text-stone-400 text-sm">No Sundays in this month.</div>
+      {% endif %}
     </div>
     <p class="text-xs text-on-dark-muted mt-2">Click a Sunday to plan it.</p>
   </section>
