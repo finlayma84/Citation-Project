@@ -188,6 +188,7 @@ def plan(iso):
     else:
         filter_season = filter_season_raw
     filter_slot = request.args.get('filter_slot', '')
+    filter_occasion = request.args.get('filter_occasion', '')
     sidebar_library = request.args.get('library', 'personal')
     if sidebar_library not in ('personal', 'choir', 'bells'):
         sidebar_library = 'personal'
@@ -209,31 +210,46 @@ def plan(iso):
     bell_total = 0
 
     if sidebar_library == 'choir':
+        choir_where = ["active=1"]
+        choir_params = []
+
+        if filter_season:
+            if filter_season == "Advent/Christmas":
+                choir_where.append("season_filter IN (?, ?)")
+                choir_params.extend(["Advent", "Christmas"])
+            else:
+                choir_where.append("season_filter = ?")
+                choir_params.append(filter_season)
+
+        if filter_occasion:
+            choir_where.append("occasion_filter = ?")
+            choir_params.append(filter_occasion)
+
         if search_q:
             like = f"%{search_q}%"
-            choir_rows = get_db().execute("""
-                SELECT * FROM choir_library
-                WHERE active=1 AND (
-                    title LIKE ?
-                    OR composer LIKE ?
-                    OR voicing LIKE ?
-                    OR season LIKE ?
-                    OR style LIKE ?
-                    OR publisher LIKE ?
-                    OR instrumentation LIKE ?
-                    OR scripture LIKE ?
-                    OR choice LIKE ?
-                )
-                ORDER BY title COLLATE NOCASE
-                LIMIT 100
-            """, (like, like, like, like, like, like, like, like, like)).fetchall()
-        else:
-            choir_rows = get_db().execute("""
-                SELECT * FROM choir_library
-                WHERE active=1
-                ORDER BY title COLLATE NOCASE
-                LIMIT 100
-            """).fetchall()
+            choir_where.append("""(
+                title LIKE ?
+                OR composer LIKE ?
+                OR voicing LIKE ?
+                OR season LIKE ?
+                OR season_filter LIKE ?
+                OR occasion_filter LIKE ?
+                OR style LIKE ?
+                OR publisher LIKE ?
+                OR instrumentation LIKE ?
+                OR scripture LIKE ?
+                OR choice LIKE ?
+            )""")
+            choir_params.extend([like, like, like, like, like, like, like, like, like, like, like])
+
+        choir_sql = f"""
+            SELECT * FROM choir_library
+            WHERE {' AND '.join(choir_where)}
+            ORDER BY title COLLATE NOCASE
+            LIMIT 100
+        """
+
+        choir_rows = get_db().execute(choir_sql, choir_params).fetchall()
         choir_total = len(choir_rows)
 
     if sidebar_library == 'bells':
@@ -258,14 +274,23 @@ def plan(iso):
         bell_total = len(bell_rows)
 
     past_truncated = (not show_all) and past_total > 25
+    occasion_options = [r[0] for r in get_db().execute("""
+        SELECT DISTINCT occasion_filter
+        FROM choir_library
+        WHERE active=1
+          AND occasion_filter IS NOT NULL
+          AND occasion_filter != ''
+        ORDER BY occasion_filter COLLATE NOCASE
+    """).fetchall()]
+
     liturgical = liturgical_name(the_date)
     sunday_theme = get_theme_for_date(the_date, liturgical_name=liturgical, season=form_season)
     return render_template('plan.html', iso=iso, display_date=the_date.strftime('%A, %B %-d, %Y'),
         slot_data=slot_data, slot_names=SLOTS, hymns=hymns, occasion=occasion, form_season=form_season,
         seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season,
-        filter_slot=filter_slot, sidebar_library=sidebar_library, search_q=search_q,
+        filter_slot=filter_slot, filter_occasion=filter_occasion, sidebar_library=sidebar_library, search_q=search_q,
         past_pieces=past_pieces, past_total=past_total, past_truncated=past_truncated,
-        choir_rows=choir_rows, choir_total=choir_total,
+        choir_rows=choir_rows, choir_total=choir_total, occasion_options=occasion_options,
         bell_rows=bell_rows, bell_total=bell_total,
         season_palette=season_palette, liturgical=liturgical, sunday_theme=sunday_theme)
 

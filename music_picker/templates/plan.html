@@ -243,7 +243,11 @@
             <label class="label-tiny block mb-1">Pieces from</label>
             <select name="filter_season" class="text-sm w-full">
               <option value="__all__" {% if filter_season == '' %}selected{% endif %}>All seasons</option>
-              {% for s in seasons %}<option value="{{ s }}" {% if s == filter_season %}selected{% endif %}>{{ s }}</option>{% endfor %}
+              {% for s in seasons %}
+                <option value="{{ s }}" {% if s == filter_season %}selected{% endif %}>
+                  {% if s == 'Pentecost' %}General / OT{% else %}{{ s }}{% endif %}
+                </option>
+              {% endfor %}
             </select>
           </div>
 
@@ -256,6 +260,18 @@
               {% endfor %}
             </select>
           </div>
+          {% if sidebar_library == 'choir' %}
+          <div>
+            <label class="label-tiny block mb-1">Occasion</label>
+            <select name="filter_occasion" class="w-full">
+              <option value="">All occasions</option>
+              {% for o in occasion_options %}
+                <option value="{{ o }}" {% if o == filter_occasion %}selected{% endif %}>{{ o }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+
           <div class="flex gap-2">
             <button type="submit" class="btn-dark flex-1 text-xs py-1">Search</button>
             {% if search_q %}<button type="button" id="sidebar-clear" class="text-xs text-stone-500 px-2 py-1">Clear</button>{% endif %}
@@ -263,7 +279,7 @@
         </form>
         <p id="sidebar-count" class="text-xs text-stone-500 mb-3">
           {% if sidebar_library == 'choir' %}
-            {{ choir_total }} choir pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}
+            {{ choir_total }} choir pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}{% if filter_occasion %} · Occasion: {{ filter_occasion }}{% endif %}
           {% elif sidebar_library == 'bells' %}
             {{ bell_total }} bell pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}
           {% else %}
@@ -286,7 +302,10 @@
               <div class="text-xs text-stone-500 mt-0.5">
                 {{ p.composer or '—' }}
                 {% if p.voicing %} · {{ p.voicing }}{% endif %}
-                {% if p.season %} · {{ p.season }}{% endif %}
+                {% if p.season_filter %}
+                  · {% if p.season_filter == 'Pentecost' %}General / OT{% else %}{{ p.season_filter }}{% endif %}
+                {% endif %}
+                {% if p.occasion_filter %} · {{ p.occasion_filter }}{% elif p.season and p.season != p.season_filter %} · {{ p.season }}{% endif %}
               </div>
               <div class="text-xs text-stone-400">
                 {% if p.style %}{{ p.style }}{% endif %}
@@ -432,7 +451,8 @@ function wireSidebarForm() {
     library: form.querySelector('[name=library]')?.value || 'personal',
     q: form.querySelector('[name=q]')?.value || '',
     filter_season: form.querySelector('[name=filter_season]')?.value || '',
-    filter_slot: form.querySelector('[name=filter_slot]')?.value || ''
+    filter_slot: form.querySelector('[name=filter_slot]')?.value || '',
+    filter_occasion: form.querySelector('[name=filter_occasion]')?.value || ''
   });
 
   form.addEventListener('submit', e => {
@@ -450,10 +470,17 @@ function wireSidebarForm() {
     slotSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
   }
 
+  const occasionSel = form.querySelector('[name=filter_occasion]');
+  if (occasionSel) {
+    occasionSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
+  }
+
   document.querySelectorAll('[data-library-tab]').forEach(tab => {
     tab.addEventListener('click', () => {
       form.querySelector('[name=library]').value = tab.dataset.libraryTab;
       form.querySelector('[name=q]').value = '';
+      const occasionEl = form.querySelector('[name=filter_occasion]');
+      if (occasionEl) occasionEl.value = '';
       refreshSidebar(getSidebarParams());
     });
   });
