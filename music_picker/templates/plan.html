@@ -285,6 +285,28 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="label-tiny block mb-1">Voicing</label>
+              <select name="filter_voicing" class="w-full">
+                <option value="">All voicings</option>
+                {% for v in choir_voicing_options %}
+                  <option value="{{ v }}" {% if v == filter_voicing %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label class="label-tiny block mb-1">Difficulty</label>
+              <select name="filter_difficulty" class="w-full">
+                <option value="">All levels</option>
+                {% for d in choir_difficulty_options %}
+                  <option value="{{ d }}" {% if d == filter_difficulty %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
           {% endif %}
 
           <div class="flex gap-2">
@@ -294,7 +316,7 @@
         </form>
         <p id="sidebar-count" class="text-xs text-stone-500 mb-3">
           {% if sidebar_library == 'choir' %}
-            {{ choir_total }} choir pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}{% if filter_occasion %} · Occasion: {{ filter_occasion }}{% endif %}
+            {{ choir_total }} choir pieces{% if choir_total > 100 %} · showing first 100{% endif %}{% if search_q %} · matching "{{ search_q }}"{% endif %}{% if filter_occasion %} · Occasion: {{ filter_occasion }}{% endif %}{% if filter_voicing %} · Voicing: {{ filter_voicing }}{% endif %}{% if filter_difficulty %} · Difficulty: {{ filter_difficulty }}{% endif %}
           {% elif sidebar_library == 'bells' %}
             {{ bell_total }} bell pieces{% if search_q %} · matching "{{ search_q }}"{% endif %}
           {% else %}
@@ -483,7 +505,9 @@ function wireSidebarForm() {
     q: form.querySelector('[name=q]')?.value || '',
     filter_season: form.querySelector('[name=filter_season]')?.value || '',
     filter_slot: form.querySelector('[name=filter_slot]')?.value || '',
-    filter_occasion: form.querySelector('[name=filter_occasion]')?.value || ''
+    filter_occasion: form.querySelector('[name=filter_occasion]')?.value || '',
+    filter_voicing: form.querySelector('[name=filter_voicing]')?.value || '',
+    filter_difficulty: form.querySelector('[name=filter_difficulty]')?.value || ''
   });
 
   form.addEventListener('submit', e => {
@@ -506,12 +530,26 @@ function wireSidebarForm() {
     occasionSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
   }
 
+  const voicingSel = form.querySelector('[name=filter_voicing]');
+  if (voicingSel) {
+    voicingSel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
+  }
+
+  const difficultySel = form.querySelector('[name=filter_difficulty]');
+  if (difficultySel) {
+    difficultySel.addEventListener('change', () => refreshSidebar(getSidebarParams()));
+  }
+
   document.querySelectorAll('[data-library-tab]').forEach(tab => {
     tab.addEventListener('click', () => {
       form.querySelector('[name=library]').value = tab.dataset.libraryTab;
       form.querySelector('[name=q]').value = '';
       const occasionEl = form.querySelector('[name=filter_occasion]');
       if (occasionEl) occasionEl.value = '';
+      const voicingEl = form.querySelector('[name=filter_voicing]');
+      if (voicingEl) voicingEl.value = '';
+      const difficultyEl = form.querySelector('[name=filter_difficulty]');
+      if (difficultyEl) difficultyEl.value = '';
       refreshSidebar(getSidebarParams());
     });
   });

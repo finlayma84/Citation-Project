@@ -424,6 +424,8 @@ def plan(iso):
         filter_season = filter_season_raw
     filter_slot = request.args.get('filter_slot', '')
     filter_occasion = request.args.get('filter_occasion', '')
+    filter_voicing = request.args.get('filter_voicing', '')
+    filter_difficulty = request.args.get('filter_difficulty', '')
     sidebar_library = request.args.get('library', 'personal')
     if sidebar_library not in ('personal', 'choir', 'bells'):
         sidebar_library = 'personal'
@@ -460,6 +462,14 @@ def plan(iso):
             choir_where.append("occasion_filter = ?")
             choir_params.append(filter_occasion)
 
+        if filter_voicing:
+            choir_where.append("voicing = ?")
+            choir_params.append(filter_voicing)
+
+        if filter_difficulty:
+            choir_where.append("difficulty = ?")
+            choir_params.append(filter_difficulty)
+
         if search_q:
             like = f"%{search_q}%"
             choir_where.append("""(
@@ -477,6 +487,13 @@ def plan(iso):
             )""")
             choir_params.extend([like, like, like, like, like, like, like, like, like, like, like])
 
+        choir_count_sql = f"""
+            SELECT COUNT(*)
+            FROM choir_library
+            WHERE {' AND '.join(choir_where)}
+        """
+        choir_total = get_db().execute(choir_count_sql, choir_params).fetchone()[0]
+
         choir_sql = f"""
             SELECT * FROM choir_library
             WHERE {' AND '.join(choir_where)}
@@ -485,7 +502,6 @@ def plan(iso):
         """
 
         choir_rows = get_db().execute(choir_sql, choir_params).fetchall()
-        choir_total = len(choir_rows)
 
     if sidebar_library == 'bells':
         if search_q:
@@ -518,14 +534,33 @@ def plan(iso):
         ORDER BY occasion_filter COLLATE NOCASE
     """).fetchall()]
 
+    choir_voicing_options = [r[0] for r in get_db().execute("""
+        SELECT DISTINCT voicing
+        FROM choir_library
+        WHERE active=1
+          AND voicing IS NOT NULL
+          AND voicing != ''
+        ORDER BY voicing COLLATE NOCASE
+    """).fetchall()]
+
+    choir_difficulty_options = [r[0] for r in get_db().execute("""
+        SELECT DISTINCT difficulty
+        FROM choir_library
+        WHERE active=1
+          AND difficulty IS NOT NULL
+          AND difficulty != ''
+          AND difficulty != 'Unknown'
+        ORDER BY difficulty COLLATE NOCASE
+    """).fetchall()]
+
     liturgical = liturgical_name(the_date)
     sunday_theme = get_theme_for_date(the_date, liturgical_name=liturgical, season=form_season)
     return render_template('plan.html', iso=iso, display_date=the_date.strftime('%A, %B %-d, %Y'),
         slot_data=slot_data, slot_names=SLOTS, hymns=hymns, occasion=occasion, form_season=form_season,
         seasons=SEASONS, performers=PERFORMERS, filter_season=filter_season,
-        filter_slot=filter_slot, filter_occasion=filter_occasion, sidebar_library=sidebar_library, search_q=search_q,
+        filter_slot=filter_slot, filter_occasion=filter_occasion, filter_voicing=filter_voicing, filter_difficulty=filter_difficulty, sidebar_library=sidebar_library, search_q=search_q,
         past_pieces=past_pieces, past_total=past_total, past_truncated=past_truncated,
-        choir_rows=choir_rows, choir_total=choir_total, occasion_options=occasion_options,
+        choir_rows=choir_rows, choir_total=choir_total, occasion_options=occasion_options, choir_voicing_options=choir_voicing_options, choir_difficulty_options=choir_difficulty_options,
         bell_rows=bell_rows, bell_total=bell_total,
         season_palette=season_palette, liturgical=liturgical, sunday_theme=sunday_theme)
 
