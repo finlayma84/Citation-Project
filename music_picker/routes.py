@@ -136,7 +136,198 @@ def library_add():
     return redirect(url_for('main.index', library_added='1', added_title=title))
 
 
+
+def _table_columns(table):
+    return [row[1] for row in get_db().execute(f"PRAGMA table_info({table})").fetchall()]
+
+
+def _clean_form_value(value):
+    return (value or "").strip()
+
+
+def _find_or_create_personal_library_item(title, composer, composer_dates, season):
+    """Create/update a personal library-only repertoire item."""
+    title = _clean_form_value(title)
+    composer = _clean_form_value(composer)
+    composer_dates = _clean_form_value(composer_dates)
+
+    if not title:
+        return None
+
+    db = get_db()
+
+    existing = db.execute("""
+        SELECT * FROM pieces
+        WHERE chosen_by='Michael'
+          AND library_only=1
+          AND lower(title)=lower(?)
+          AND lower(coalesce(composer,''))=lower(?)
+        ORDER BY id
+        LIMIT 1
+    """, (title, composer)).fetchone()
+
+    if existing:
+        db.execute("""
+            UPDATE pieces
+            SET title=?,
+                composer=?,
+                composer_dates=?,
+                season=?
+            WHERE id=?
+        """, (
+            title,
+            composer,
+            composer_dates or existing['composer_dates'] or '',
+            season or existing['season'] or '',
+            existing['id'],
+        ))
+        return existing['id']
+
+    cols = _table_columns("pieces")
+    values = {
+        "season": season or "",
+        "calendar_year": None,
+        "date": "",
+        "occasion": "",
+        "slot": "",
+        "performer": "Michael",
+        "chosen_by": "Michael",
+        "title": title,
+        "composer": composer,
+        "composer_dates": composer_dates,
+        "status": "library",
+        "library_only": 1,
+        "source_file": "Added from planning view",
+        "source_type": "personal",
+        "source_id": None,
+    }
+
+    insert_cols = [c for c in values if c in cols]
+    placeholders = ", ".join(["?"] * len(insert_cols))
+    sql = f"INSERT INTO pieces ({', '.join(insert_cols)}) VALUES ({placeholders})"
+    db.execute(sql, [values[c] for c in insert_cols])
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def _find_or_create_choir_item(title, composer, season_filter=None, occasion_filter=None, source_id=None):
+    """Create/update choir_library item."""
+    title = _clean_form_value(title)
+    composer = _clean_form_value(composer)
+
+    if not title:
+        return None
+
+    db = get_db()
+
+    if source_id:
+        row = db.execute("SELECT * FROM choir_library WHERE id=?", (source_id,)).fetchone()
+        if row:
+            db.execute("""
+                UPDATE choir_library
+                SET title=?,
+                    composer=?
+                WHERE id=?
+            """, (title, composer, source_id))
+            return source_id
+
+    existing = db.execute("""
+        SELECT id FROM choir_library
+        WHERE active=1
+          AND lower(title)=lower(?)
+          AND lower(coalesce(composer,''))=lower(?)
+        ORDER BY id
+        LIMIT 1
+    """, (title, composer)).fetchone()
+
+    if existing:
+        db.execute("""
+            UPDATE choir_library
+            SET title=?,
+                composer=?
+            WHERE id=?
+        """, (title, composer, existing['id']))
+        return existing['id']
+
+    cols = _table_columns("choir_library")
+    values = {
+        "title": title,
+        "composer": composer,
+        "voicing": "",
+        "difficulty": "",
+        "season": season_filter or "",
+        "style": "",
+        "copies": "",
+        "publisher": "",
+        "year": "",
+        "purchased": "",
+        "instrumentation": "",
+        "scripture": "",
+        "choice": "Added from planning view",
+        "active": 1,
+        "season_filter": season_filter or "",
+        "occasion_filter": occasion_filter or "",
+    }
+
+    insert_cols = [c for c in values if c in cols]
+    placeholders = ", ".join(["?"] * len(insert_cols))
+    sql = f"INSERT INTO choir_library ({', '.join(insert_cols)}) VALUES ({placeholders})"
+    db.execute(sql, [values[c] for c in insert_cols])
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def _find_or_create_bell_item(title, composer_arranger, source_id=None):
+    """Create/update bell_library item."""
+    title = _clean_form_value(title)
+    composer_arranger = _clean_form_value(composer_arranger)
+
+    if not title:
+        return None
+
+    db = get_db()
+
+    if source_id:
+        row = db.execute("SELECT * FROM bell_library WHERE id=?", (source_id,)).fetchone()
+        if row:
+            db.execute("""
+                UPDATE bell_library
+                SET title=?,
+                    composer_arranger=?
+                WHERE id=?
+            """, (title, composer_arranger, source_id))
+            return source_id
+
+    existing = db.execute("""
+        SELECT id FROM bell_library
+        WHERE active=1
+          AND lower(title)=lower(?)
+          AND lower(coalesce(composer_arranger,''))=lower(?)
+        ORDER BY id
+        LIMIT 1
+    """, (title, composer_arranger)).fetchone()
+
+    if existing:
+        db.execute("""
+            UPDATE bell_library
+            SET title=?,
+                composer_arranger=?
+            WHERE id=?
+        """, (title, composer_arranger, existing['id']))
+        return existing['id']
+
+    db.execute("""
+        INSERT INTO bell_library (title, composer_arranger, active)
+        VALUES (?, ?, 1)
+    """, (title, composer_arranger))
+    return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+
+def _library_target_for_season(form_season):
+    """Keep current app values. UI may display Pentecost as General / OT."""
+    return form_season or ""
+
+
 @bp.route('/plan/<iso>', methods=['GET', 'POST'])
+
 def plan(iso):
     try:
         y, m, d = [int(x) for x in iso.split('-')]
@@ -157,17 +348,59 @@ def plan(iso):
             composer = request.form.get(f'composer_{slot}', '').strip()
             dates = request.form.get(f'composer_dates_{slot}', '').strip()
             performer = request.form.get(f'performer_{slot}', 'Unspecified')
+
+            source_type = request.form.get(f'source_type_{slot}', '').strip()
+            source_id_raw = request.form.get(f'source_id_{slot}', '').strip()
+            source_id = int(source_id_raw) if source_id_raw.isdigit() else None
+
+            add_to_library = request.form.get(f'add_to_library_{slot}') == '1'
+            library_target = request.form.get(f'library_target_{slot}', 'personal').strip() or 'personal'
+            season_value = request.form.get('season', form_season)
+            occasion_value = request.form.get('occasion', '').strip()
+
+            # If this was selected from an existing source, default to updating that source.
+            if source_type in ('personal', 'choir', 'bells'):
+                library_target = source_type
+                add_to_library = True
+
+            # Manual entries default to being added to the selected library if checked.
+            if add_to_library:
+                if library_target == 'choir':
+                    source_type = 'choir'
+                    source_id = _find_or_create_choir_item(
+                        title,
+                        composer,
+                        season_filter=_library_target_for_season(season_value),
+                        occasion_filter=occasion_value,
+                        source_id=source_id if source_type == 'choir' else None,
+                    )
+                elif library_target == 'bells':
+                    source_type = 'bells'
+                    source_id = _find_or_create_bell_item(
+                        title,
+                        composer,
+                        source_id=source_id if source_type == 'bells' else None,
+                    )
+                else:
+                    source_type = 'personal'
+                    source_id = _find_or_create_personal_library_item(
+                        title,
+                        composer,
+                        dates,
+                        season_value,
+                    )
+
             today = date_class.today()
             status = 'scheduled' if (year, m, d) >= (today.year, today.month, today.day) else 'played'
-            get_db().execute('''INSERT INTO pieces (season, calendar_year, date, occasion, slot, performer, chosen_by, title, composer, composer_dates, status, library_only)
-                VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, ?, ?, 0)''',
-                (request.form.get('season', form_season), year, date_str, request.form.get('occasion', ''),
-                 slot, performer, title, composer, dates, status))
+            get_db().execute('''INSERT INTO pieces (season, calendar_year, date, occasion, slot, performer, chosen_by, title, composer, composer_dates, status, library_only, source_type, source_id)
+                VALUES (?, ?, ?, ?, ?, ?, 'Michael', ?, ?, ?, ?, 0, ?, ?)''',
+                (season_value, year, date_str, request.form.get('occasion', ''),
+                 slot, performer, title, composer, dates, status, source_type or None, source_id))
         get_db().commit()
         try_sync_doc(form_season, year)
         return redirect(url_for('main.index', month=f"{y:04d}-{m:02d}", saved='1', synced='1'))
     rows = get_db().execute("SELECT * FROM pieces WHERE calendar_year=? AND date=?", (year, date_str)).fetchall()
-    slot_data = {s: {'title': '', 'composer': '', 'composer_dates': '', 'performer': 'Unspecified'} for s in SLOTS}
+    slot_data = {s: {'title': '', 'composer': '', 'composer_dates': '', 'performer': 'Unspecified', 'source_type': '', 'source_id': ''} for s in SLOTS}
     hymns = []
     occasion = ''
     for r in rows:
@@ -177,7 +410,9 @@ def plan(iso):
             hymns.append({'title': r['title'], 'hymn_no': r['hymn_no']})
         elif r['slot'] in SLOTS and r['chosen_by'] == 'Michael':
             slot_data[r['slot']] = {'title': r['title'], 'composer': r['composer'],
-                                    'composer_dates': r['composer_dates'], 'performer': r['performer'] or 'Unspecified'}
+                                    'composer_dates': r['composer_dates'], 'performer': r['performer'] or 'Unspecified',
+                                    'source_type': r['source_type'] if 'source_type' in r.keys() else '',
+                                    'source_id': r['source_id'] if 'source_id' in r.keys() else ''}
         if r['occasion'] and not occasion:
             occasion = r['occasion']
     filter_season_raw = request.args.get('filter_season')

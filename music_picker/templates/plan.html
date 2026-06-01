@@ -207,12 +207,27 @@
         <div>
           <label class="block text-sm font-semibold text-stone-800 mb-2">{{ slot }}</label>
           <div class="space-y-2">
+            <input type="hidden" id="source_type_{{ slot }}" name="source_type_{{ slot }}" value="{{ slot_data[slot].source_type or '' }}">
+            <input type="hidden" id="source_id_{{ slot }}" name="source_id_{{ slot }}" value="{{ slot_data[slot].source_id or '' }}">
+
             <input type="text" id="title_{{ slot }}" name="title_{{ slot }}" value="{{ slot_data[slot].title or '' }}" placeholder="Title" class="w-full">
             <div class="grid grid-cols-12 gap-2">
               <input type="text" id="composer_{{ slot }}" name="composer_{{ slot }}" value="{{ slot_data[slot].composer or '' }}" placeholder="Composer" class="col-span-5">
               <input type="text" id="composer_dates_{{ slot }}" name="composer_dates_{{ slot }}" value="{{ slot_data[slot].composer_dates or '' }}" placeholder="Dates, e.g. 1685-1750" class="col-span-4">
-              <select name="performer_{{ slot }}" class="col-span-3">
+              <select id="performer_{{ slot }}" name="performer_{{ slot }}" class="col-span-3">
                 {% for pf in performers %}<option value="{{ pf }}" {% if pf == slot_data[slot].performer %}selected{% endif %}>{{ pf }}</option>{% endfor %}
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+              <label class="inline-flex items-center gap-1">
+                <input type="checkbox" name="add_to_library_{{ slot }}" value="1" checked>
+                <span>Add/update library</span>
+              </label>
+              <select name="library_target_{{ slot }}" id="library_target_{{ slot }}" class="text-xs py-1 px-2">
+                <option value="personal" {% if slot_data[slot].source_type in ['', 'personal'] %}selected{% endif %}>Personal</option>
+                <option value="choir" {% if slot_data[slot].source_type == 'choir' %}selected{% endif %}>Choir</option>
+                <option value="bells" {% if slot_data[slot].source_type == 'bells' %}selected{% endif %}>Bells</option>
               </select>
             </div>
           </div>
@@ -297,7 +312,9 @@
                  data-title="{{ p.title }}"
                  data-composer="{{ p.composer }}"
                  data-dates=""
-                 data-ensemble="Chancel Choir">
+                 data-ensemble="Chancel Choir"
+                 data-source-type="choir"
+                 data-source-id="{{ p.id }}">
               <div class="font-medium text-stone-900">{{ p.title }}</div>
               <div class="text-xs text-stone-500 mt-0.5">
                 {{ p.composer or '—' }}
@@ -326,7 +343,9 @@
                  data-title="{{ p.title }}"
                  data-composer="{{ p.composer_arranger }}"
                  data-dates=""
-                 data-ensemble="Handbells">
+                 data-ensemble="Handbells"
+                 data-source-type="bells"
+                 data-source-id="{{ p.id }}">
               <div class="font-medium text-stone-900">{{ p.title }}</div>
               <div class="text-xs text-stone-500 mt-0.5">{{ p.composer_arranger or '—' }}</div>
               <div class="flex flex-wrap gap-1 mt-2 opacity-60 group-hover:opacity-100 transition">
@@ -344,7 +363,9 @@
                  data-title="{{ p.title }}"
                  data-composer="{{ p.composer }}"
                  data-dates="{{ p.composer_dates }}"
-                 data-ensemble="Michael">
+                 data-ensemble="Michael"
+                 data-source-type="personal"
+                 data-source-id="{{ p.get('id', '') }}">
               <div class="font-medium text-stone-900">
                 {{ p.title }}
                 {% if p.library %}<span class="ml-1 badge-library">lib</span>{% endif %}
@@ -388,6 +409,16 @@ function wireUp() {
       const performerEl = document.getElementById('performer_' + slot);
       if (performerEl && card.dataset.ensemble) {
         performerEl.value = card.dataset.ensemble;
+      }
+
+      const sourceTypeEl = document.getElementById('source_type_' + slot);
+      const sourceIdEl = document.getElementById('source_id_' + slot);
+      const libraryTargetEl = document.getElementById('library_target_' + slot);
+
+      if (sourceTypeEl) sourceTypeEl.value = card.dataset.sourceType || '';
+      if (sourceIdEl) sourceIdEl.value = card.dataset.sourceId || '';
+      if (libraryTargetEl && card.dataset.sourceType) {
+        libraryTargetEl.value = card.dataset.sourceType;
       }
       const titleEl = document.getElementById('title_' + slot);
       titleEl.style.outline = '2px solid var(--accent-action)';
