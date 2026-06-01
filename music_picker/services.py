@@ -51,143 +51,132 @@ def get_sunday_summary(d):
 
 
 def get_repertoire_results(search_q='', season='', slot='', limit=None):
-    """Shared repertoire/history search used by index and planning sidebar.
+    """Shared repertoire/library search used by index and planning sidebar.
 
-    Rules:
-    - Search title/composer/dates/occasion/source across the same data everywhere.
-    - Dated/planned rows include past and future scheduled pieces.
-    - Season and slot are browsing filters for dated/planned rows.
-    - Library-only rows appear at the bottom alphabetically when no season/slot
-      filter is active, or when a search matches them and no slot filter is active.
-    - Library-only rows are hidden by slot filter because they have no usage slot.
+    New model:
+    - personal_library is the canonical list of personal/instrumental repertoire.
+    - pieces is dated planning/history usage.
+    - Unused repertoire is not in a separate silo; it is simply library repertoire
+      with no usage rows yet.
     """
     db = get_db()
+    search_q = (search_q or '').strip()
+    season = season or ''
+    slot = slot or ''
 
-    library_rows = db.execute(
-        "SELECT * FROM pieces WHERE chosen_by='Michael' AND library_only=1"
-    ).fetchall()
+    # 1. Start from canonical personal library.
+    library_rows = db.execute("""
+        SELECT *
+        FROM personal_library
+        WHERE active=1
+        ORDER BY title COLLATE NOCASE
+    """).fetchall()
 
-    dated_rows = db.execute(
-        "SELECT * FROM pieces WHERE chosen_by='Michael' AND (library_only=0 OR library_only IS NULL)"
-    ).fetchall()
+    library_rows = [dict(r) for r in library_rows]
 
-    dated_rows = [r for r in dated_rows if to_sortable_date(r) != (0, 0, 0)]
-
+    # 2. Apply broad library filters.
     if season:
-        dated_rows = [r for r in dated_rows if r['season'] == season]
-
-    if slot:
-        dated_rows = [r for r in dated_rows if r['slot'] == slot]
-        # Library-only rows have no real usage slot yet.
-        library_rows = []
+        library_rows = [r for r in library_rows if (r.get('season') or '') == season]
 
     if search_q:
-        dated_rows = [r for r in dated_rows if matches_search(dict(r), search_q)]
-        library_rows = [r for r in library_rows if matches_search(dict(r), search_q)]
-    elif season:
-        # When browsing a specific season, don't flood the list with seasonless library rows.
-        library_rows = []
+        q = search_q.lower()
+        def lib_matches(r):
+            haystack = " ".join([
+                r.get('title') or '',
+                r.get('composer') or '',
+                r.get('composer_dates') or '',
+                r.get('season') or '',
+                r.get('source_file') or '',
+                r.get('notes') or '',
+            ]).lower()
+            return q in haystack
+
+        library_rows = [r for r in library_rows if lib_matches(r)]
+
+    library_ids = [r['id'] for r in library_rows]
+
+    if not library_ids:
+        return [], 0
+
+    # 3. Pull all linked personal usage/history rows for these library items.
+    placeholders = ",".join(["?"] * len(library_ids))
+    usage_rows = db.execute(f"""
+        SELECT *
+        FROM pieces
+        WHERE chosen_by='Michael'
+          AND source_type='personal'
+          AND source_id IN ({placeholders})
+          AND (library_only=0 OR library_only IS NULL)
+    """, library_ids).fetchall()
+
+    usage_rows = [r for r in usage_rows if to_sortable_date(r) != (0, 0, 0)]
+
+    if slot:
+        usage_rows = [r for r in usage_rows if r['slot'] == slot]
+        used_ids = {r['source_id'] for r in usage_rows}
+        library_rows = [r for r in library_rows if r['id'] in used_ids]
 
     today = date_class.today()
     today_tuple = (today.year, today.month, today.day)
 
-    seen = {}
+    usage_by_id = {}
+    for r in usage_rows:
+        source_id = r['source_id']
+        if source_id not in usage_by_id:
+            usage_by_id[source_id] = []
+        usage_by_id[source_id].append(r)
 
-    for r in dated_rows:
-        title = r['title'] or ''
-        d = to_sortable_date(r)
-        is_future = d >= today_tuple
+    out = []
 
-        if title not in seen:
-            seen[title] = {
-                'row': r,
-                'count': 0,
-                'last': (0, 0, 0),
-                'next_future': None,
-                'composer': r['composer'],
-                'composer_dates': r['composer_dates'],
-            }
+    for lib in library_rows:
+        lib_id = lib['id']
+        usages = usage_by_id.get(lib_id, [])
 
-        entry = seen[title]
-        entry['count'] += 1
+        past_dates = []
+        future_dates = []
 
-        if d > entry['last']:
-            entry['last'] = d
-            entry['row'] = r
-            entry['composer'] = r['composer']
-            entry['composer_dates'] = r['composer_dates']
+        for u in usages:
+            d = to_sortable_date(u)
+            if d >= today_tuple:
+                future_dates.append(d)
+            else:
+                past_dates.append(d)
 
-        if is_future:
-            if entry['next_future'] is None or d < entry['next_future']:
-                entry['next_future'] = d
+        last_past = max(past_dates) if past_dates else (0, 0, 0)
+        next_future = min(future_dates) if future_dates else None
 
-    dated_titles = set(seen.keys())
+        never_used = not past_dates and not future_dates
+        scheduled_only = (not past_dates) and bool(next_future)
 
-    dated_out = []
-    for title, v in seen.items():
-        next_future = v['next_future']
-        scheduled_only = next_future is not None and v['last'] >= today_tuple
-
-        dated_out.append({
-            'title': title,
-            'composer': v['composer'] or '',
-            'composer_dates': v['composer_dates'] or '',
-            'last_played': v['last'],
-            'last_played_str': format_last_played(v['last']),
+        out.append({
+            'id': lib_id,
+            'title': lib.get('title') or '',
+            'composer': lib.get('composer') or '',
+            'composer_dates': lib.get('composer_dates') or '',
+            'last_played': last_past,
+            'last_played_str': format_last_played(last_past) if past_dates else '',
+            'times': len(past_dates),
             'next_scheduled': next_future,
             'next_scheduled_str': format_last_played(next_future) if next_future else '',
-            'times': v['count'],
-            'library': False,
+            # Keep template compatibility:
+            # library=True now means "never used yet," not "separate library-only silo."
+            'library': never_used,
             'scheduled_only': scheduled_only,
-            'source_file': '',
-            'hymn_no': '',
-            'source_label': '',
+            'source_label': lib.get('source_file') or '',
         })
 
-    # Dated/planned repertoire first: oldest/longest-since-used first.
-    dated_out.sort(key=lambda r: r['last_played'])
+    # 4. Sort:
+    # - used repertoire first, oldest last-played first
+    # - scheduled-only next
+    # - never-used at bottom alphabetically
+    def sort_key(r):
+        if r['last_played'] != (0, 0, 0):
+            return (0, r['last_played'], r['title'].lower())
+        if r['scheduled_only']:
+            return (1, r['next_scheduled'] or (9999, 12, 31), r['title'].lower())
+        return (2, r['title'].lower())
 
-    library_out = []
-    for r in library_rows:
-        if r['title'] in dated_titles:
-            continue
-
-        source_file = r['source_file'] or ''
-        hymn_no = r['hymn_no'] or ''
-
-        if source_file and hymn_no:
-            source_label = f"{source_file} · {hymn_no}"
-        elif source_file:
-            source_label = source_file
-        elif hymn_no:
-            source_label = hymn_no
-        else:
-            source_label = ''
-
-        library_out.append({
-            'title': r['title'] or '',
-            'composer': r['composer'] or '',
-            'composer_dates': r['composer_dates'] or '',
-            'last_played': (9999, 12, 31),
-            'last_played_str': '',
-            'next_scheduled': None,
-            'next_scheduled_str': '',
-            'times': 0,
-            'library': True,
-            'scheduled_only': False,
-            'source_file': source_file,
-            'hymn_no': hymn_no,
-            'source_label': source_label,
-        })
-
-    # Never-played library repertoire goes at the bottom, alphabetized.
-    library_out.sort(key=lambda r: (
-        (r['title'] or '').lower(),
-        (r['source_file'] or '').lower(),
-        (r['hymn_no'] or '').lower(),
-    ))
-
-    out = dated_out + library_out
+    out.sort(key=sort_key)
 
     total = len(out)
     if limit is not None and total > limit:

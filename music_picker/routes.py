@@ -146,10 +146,11 @@ def _clean_form_value(value):
 
 
 def _find_or_create_personal_library_item(title, composer, composer_dates, season):
-    """Create/update a personal library-only repertoire item."""
+    """Create/update a canonical personal_library repertoire item."""
     title = _clean_form_value(title)
     composer = _clean_form_value(composer)
     composer_dates = _clean_form_value(composer_dates)
+    season = _clean_form_value(season)
 
     if not title:
         return None
@@ -157,9 +158,9 @@ def _find_or_create_personal_library_item(title, composer, composer_dates, seaso
     db = get_db()
 
     existing = db.execute("""
-        SELECT * FROM pieces
-        WHERE chosen_by='Michael'
-          AND library_only=1
+        SELECT *
+        FROM personal_library
+        WHERE active=1
           AND lower(title)=lower(?)
           AND lower(coalesce(composer,''))=lower(?)
         ORDER BY id
@@ -168,7 +169,7 @@ def _find_or_create_personal_library_item(title, composer, composer_dates, seaso
 
     if existing:
         db.execute("""
-            UPDATE pieces
+            UPDATE personal_library
             SET title=?,
                 composer=?,
                 composer_dates=?,
@@ -183,29 +184,18 @@ def _find_or_create_personal_library_item(title, composer, composer_dates, seaso
         ))
         return existing['id']
 
-    cols = _table_columns("pieces")
-    values = {
-        "season": season or "",
-        "calendar_year": None,
-        "date": "",
-        "occasion": "",
-        "slot": "",
-        "performer": "Michael",
-        "chosen_by": "Michael",
-        "title": title,
-        "composer": composer,
-        "composer_dates": composer_dates,
-        "status": "library",
-        "library_only": 1,
-        "source_file": "Added from planning view",
-        "source_type": "personal",
-        "source_id": None,
-    }
+    db.execute("""
+        INSERT INTO personal_library (
+            title, composer, composer_dates, season, source_file, notes, active
+        )
+        VALUES (?, ?, ?, ?, 'Added from planning view', '', 1)
+    """, (
+        title,
+        composer,
+        composer_dates,
+        season,
+    ))
 
-    insert_cols = [c for c in values if c in cols]
-    placeholders = ", ".join(["?"] * len(insert_cols))
-    sql = f"INSERT INTO pieces ({', '.join(insert_cols)}) VALUES ({placeholders})"
-    db.execute(sql, [values[c] for c in insert_cols])
     return db.execute("SELECT last_insert_rowid()").fetchone()[0]
 
 
