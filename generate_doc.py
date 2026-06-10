@@ -218,7 +218,7 @@ def clear_paragraph_runs(paragraph):
 
 def write_pastor_line(paragraph, label):
     """Write a pastor-owned line. The sync code intentionally ignores these."""
-    add_run(paragraph, label, font=DEFAULT_FONT, bold=True)
+    add_run(paragraph, label, font=DEFAULT_FONT, bold=False, italic=True)
 
 
 def write_slot_paragraph(paragraph, slot, piece):
@@ -320,14 +320,14 @@ def generate_template(season, year):
         # The sync/update code never touches these.
         p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
         write_pastor_line(p, 'OPENING HYMN:')
-
+        p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
+        write_pastor_line(p, 'CLOSING HYMN:')
         for slot in ['Prelude', 'Min Music', 'Offering']:
             piece = data['pieces'][slot]
             p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
             write_slot_paragraph(p, slot, piece)
 
-        p = tight_paragraph(doc, keep_with_next=True, keep_together=True)
-        write_pastor_line(p, 'CLOSING HYMN:')
+      
 
         piece = data['pieces']['Postlude']
         p = tight_paragraph(doc, keep_with_next=False, keep_together=True)
